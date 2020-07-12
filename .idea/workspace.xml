@@ -11,11 +11,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19ed550f-2a11-4fdc-8f62-396b6949e959" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ChinessJumpChessControl.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ChinessJumpChessControl.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/jump0" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/jump0" afterDir="false" />
+    <list default="true" id="19ed550f-2a11-4fdc-8f62-396b6949e959" name="Default" comment="update error &#10;id and id_temp">
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/jump0.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/jump0.dir/CXX.includecache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/jump0.dir/ChinessJumpChessControl.cpp.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/jump0.dir/ChinessJumpChessControl.cpp.o" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -147,8 +145,16 @@
       <workItem from="1584130790294" duration="20146000" />
       <workItem from="1584244408980" duration="43363000" />
       <workItem from="1585490554894" duration="45503000" />
-      <workItem from="1586863063562" duration="120574000" />
+      <workItem from="1586863063562" duration="120828000" />
     </task>
+    <task id="LOCAL-00001" summary="update error &#10;id and id_temp">
+      <created>1594548847257</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1594548847257</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -164,6 +170,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="update error &#10;id and id_temp" />
+    <option name="LAST_COMMIT_MESSAGE" value="update error &#10;id and id_temp" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

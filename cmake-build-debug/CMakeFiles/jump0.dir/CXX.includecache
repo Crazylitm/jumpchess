@@ -6,35 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersImageObject.h
-ChessInclude.h
-/home/litm/soft/opencv_dev/cpp/jump0/ChessInclude.h
-
 /home/litm/soft/opencv_dev/cpp/jump0/CheckersMapLimitCheck.h
 ChessInclude.h
 /home/litm/soft/opencv_dev/cpp/jump0/ChessInclude.h
-
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersUI.cpp
-CheckersUI.h
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersUI.h
-
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersUI.h
-opencv2/opencv.hpp
--
-opencv2/core/core.hpp
--
-opencv2/imgproc/imgproc.hpp
--
-CheckersMapLimitCheck.h
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersMapLimitCheck.h
-ChinessJumpChessControl.h
-/home/litm/soft/opencv_dev/cpp/jump0/ChinessJumpChessControl.h
-list
--
-map
--
-ChessNode.h
-/home/litm/soft/opencv_dev/cpp/jump0/ChessNode.h
 
 /home/litm/soft/opencv_dev/cpp/jump0/ChessInclude.h
 opencv2/core/core.hpp
@@ -56,6 +30,12 @@ opencv2/core/core.hpp
 ChessInclude.h
 /home/litm/soft/opencv_dev/cpp/jump0/ChessInclude.h
 
+/home/litm/soft/opencv_dev/cpp/jump0/ChinessJumpChessControl.cpp
+stack
+-
+ChinessJumpChessControl.h
+/home/litm/soft/opencv_dev/cpp/jump0/ChinessJumpChessControl.h
+
 /home/litm/soft/opencv_dev/cpp/jump0/ChinessJumpChessControl.h
 CheckersMapLimitCheck.h
 /home/litm/soft/opencv_dev/cpp/jump0/CheckersMapLimitCheck.h
@@ -65,30 +45,6 @@ list
 -
 map
 -
-
-/home/litm/soft/opencv_dev/cpp/jump0/MouseMoveChessOpt.h
-ChessInclude.h
-/home/litm/soft/opencv_dev/cpp/jump0/ChessInclude.h
-
-/home/litm/soft/opencv_dev/cpp/jump0/jump.cpp
-cstdio
--
-jump.h
-/home/litm/soft/opencv_dev/cpp/jump0/jump.h
-
-/home/litm/soft/opencv_dev/cpp/jump0/jump.h
-jump.h
-/home/litm/soft/opencv_dev/cpp/jump0/jump.h
-CheckersUI.h
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersUI.h
-CheckersMapLimitCheck.h
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersMapLimitCheck.h
-ChessInclude.h
-/home/litm/soft/opencv_dev/cpp/jump0/ChessInclude.h
-CheckersImageObject.h
-/home/litm/soft/opencv_dev/cpp/jump0/CheckersImageObject.h
-MouseMoveChessOpt.h
-/home/litm/soft/opencv_dev/cpp/jump0/MouseMoveChessOpt.h
 
 /usr/local/opencv4/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp
