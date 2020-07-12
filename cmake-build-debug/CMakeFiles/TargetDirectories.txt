@@ -1,0 +1,3 @@
+/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/CMakeFiles/jump0.dir
+/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/CMakeFiles/edit_cache.dir

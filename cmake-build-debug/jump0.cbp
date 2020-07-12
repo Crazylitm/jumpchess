@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="jump0"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\..\usr\local\opencv4\;CMake Files\..\..\..\..\..\..\usr\local\opencv4\lib\;CMake Files\..\..\..\..\..\..\usr\local\opencv4\lib\cmake\;CMake Files\..\..\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="jump0">
+				<Option output="/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/jump0" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/opencv4/include/opencv4"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 jump0"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="jump0/fast">
+				<Option output="/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/jump0" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/opencv4/include/opencv4"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 jump0/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/litm/soft/opencv_dev/cpp/jump0/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/CheckersImageObject.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/CheckersImageObject.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/CheckersMapLimitCheck.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/CheckersMapLimitCheck.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/CheckersUI.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/CheckersUI.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/ChessInclude.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/ChessNode.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/ChessNode.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/ChinessJumpChessControl.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/ChinessJumpChessControl.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/MouseMoveChessOpt.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/MouseMoveChessOpt.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/jump.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/jump.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/main4.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/utils/MultipleImageWindow.cpp">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/utils/MultipleImageWindow.h">
+			<Option target="jump0"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/../../../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVConfig-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/../../../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/../../../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVModules-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		</Unit>
+		<Unit filename="/home/litm/soft/opencv_dev/cpp/jump0/../../../../../../usr/local/opencv4/lib/cmake/opencv4/OpenCVModules.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\opencv4\lib\cmake\opencv4\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
