@@ -234,12 +234,12 @@ map<string,list<CircleReturn>> * ChinessJumpChessControl::FindPathList(int Map_i
                 if(rec->size()>0) {
                     list<CircleReturn> *listnode = new list<CircleReturn>();
                     for (iter = rec->begin(); iter != rec->end(); ++iter) {
-                        int id = MAP_ID[*iter];
-                        set<int>::iterator it_temp0 = sec_visited.find(id);
+                        int id_test = MAP_ID[*iter];
+                        set<int>::iterator it_temp0 = sec_visited.find(id_test);
                         CircleReturn *p0 = GetNodeInfo(*it_temp0);
                         ///
                         bool Flag =false;
-                        if(Map_id != id) {//second search ,cannot find neighbor chess,just find next jump chess dump;
+                        if(Map_id != id_test) {//second search ,cannot find neighbor chess,just find next jump chess dump;
                             for (int i = 0; i < 7; i++) {
                                 if (p0->CircleMap_i == jump_chess_neighbor_id[i] && Map_id != id) {
                                         Flag = true;
