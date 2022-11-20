@@ -12,6 +12,7 @@
 #include "ChinessJumpChessControl.h"
 #include <list>
 #include <map>
+#include "ChessCamera.h"
 #include "ChessNode.h"
 using namespace cv;
 using  namespace std;
@@ -39,12 +40,16 @@ private:
     Mat roseredchess;
     Mat whirtechess;
     Mat orangechess;
+    Mat button_begin;
 
     Point curMousePos;//鼠标点击的位置
 
 
     ChinessJumpChessControl *control= nullptr;
     ChessNode *head = nullptr;
+
+    ChessCamera camera;
+
 public:
     CheckersMapLimitCheck checker;
     map<int,list<CircleReturn>> MapChessControlMemory;
@@ -63,6 +68,7 @@ public:
         roseredchess = imread("../image/roseredchess.png",IMREAD_UNCHANGED);
         whirtechess = imread("../image/writechess.png",IMREAD_UNCHANGED);
         orangechess = imread("../image/orangechess.png",IMREAD_UNCHANGED);
+        button_begin = imread("../image/button_begin.png",IMREAD_UNCHANGED);
 
         control = new ChinessJumpChessControl(this->chessmapmat,&this->checker,&MapChessControlMemory);
     }
@@ -82,6 +88,7 @@ public:
         roseredchess = imread("../image/roseredchess.png",IMREAD_UNCHANGED);
         whirtechess = imread("../image/writechess.png",IMREAD_UNCHANGED);
         orangechess = imread("../image/orangechess.png",IMREAD_UNCHANGED);
+        button_begin = imread("../image/button_begin.png",IMREAD_UNCHANGED);
     }
     ~CheckersUI(){
         delete control;
@@ -123,6 +130,8 @@ public:
         return distance;
     }
     void printChessMap();
+    void DrawButton(int type);
+    void DrawBackground();
 };
 
 static void onMouseHandle(int event,int x, int y ,int flags,void* param){

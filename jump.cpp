@@ -849,7 +849,8 @@ int main(int,char *argv[])
     namedWindow(WINDOW_NAME_CHESS);
     CheckersUI ui;
     ui.Triangle();
-
+    ui.DrawBackground();
+    ui.DrawButton(1);
     //ui.printChess(ui.getMapXY(6,3),ui.getMapXY(7,7),RED);
     //ui.printChess(ui.getMapXY(7,7),ui.getMapXY(8,9),RED);
     //ui.printChess(ui.getMapXY(13,17),ui.getMapXY(16,13),ORANGE);

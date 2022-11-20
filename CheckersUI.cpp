@@ -212,6 +212,55 @@ void CheckersUI::printChess(Point org,Point dist,ChessColor chess) {
 
 
 }
+void CheckersUI::DrawBackground() {
+    Point dest(10,10);
+    Rect rect = Rect(dest.x,dest.y,300,70);
+    Mat img = button_begin;
+    Mat img1(img,rect);
+
+    Point dest_point(900,25);
+    Rect dest_rect = Rect(dest_point.x,dest_point.y,rect.width,rect.height);
+    Mat destimg = chessmapmat;
+    Mat destimg1(destimg,dest_rect);
+    cvAdd4cMat_q(destimg1,img1,1.0);
+    putText(chessmapmat,"Video Capture",Point(960,20),FONT_HERSHEY_COMPLEX,0.5,Scalar(0,0,0));
+
+}
+void CheckersUI::DrawButton(int type) {
+
+    int hight = button_begin.rows;
+    int with  = button_begin.cols;
+    if(type == 1){
+        //button on
+        Point dest(110,110);
+
+        Rect rect = Rect(dest.x,dest.y,60,60);
+        Mat img = button_begin;
+        Mat img1(img,rect);
+
+        Point dest_point(1000,30);
+        Rect dest_rect = Rect(dest_point.x,dest_point.y,rect.width,rect.height);
+        Mat destimg = chessmapmat;
+        Mat destimg1(destimg,dest_rect);
+        cvAdd4cMat_q(destimg1,img1,1.0);
+    }else if(type ==0 ){
+        //button off
+        //button on
+        Point dest(110,165);
+        Rect rect = Rect(dest.x,dest.y,60,60);
+        Mat img_off = button_begin;
+        Mat img1_off(img_off,rect);
+
+        Point dest_point(1000,30);
+        Rect dest_rect = Rect(dest_point.x,dest_point.y,rect.width,rect.height);
+        Mat destimg_off = chessmapmat;
+        Mat destimg1_off(destimg_off,dest_rect);
+        cvAdd4cMat_q(destimg1_off,img1_off,1.0);
+
+        //camera
+        camera.init();
+    }
+}
 void CheckersUI::InitChess() {
     int x=0,y=0;
     ChessColor chess;
@@ -328,7 +377,8 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
             break;
         case EVENT_LBUTTONUP:
         {
-
+            DrawButton(1);
+            imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新以下
         }
             break;
         case EVENT_LBUTTONDOWN:
@@ -343,8 +393,9 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
             static Point old_cur_Pos(-1,-1);
             static ChessColor  old_curColor;
             static int old_cur_i;
-
-
+            if(x>=900 && x <1200 && y>=30 && y<=90)
+                DrawButton(0);
+            imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新以下
             //鼠标第一次down，通过变量oneMouseDown==0来判断是否是鼠标第一次按下Down
             //如果当前落地下地方的颜色不是空棋子的地方，就可以进入这个函数了
             //SHARELIGHTGREEN 被使用为标记是否为空的标记了，代码中总是以它为标记，每次移动，棋子空余下来的位置也会被标记为SHARELIGHTGREEN的

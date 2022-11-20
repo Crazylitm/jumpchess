@@ -252,11 +252,21 @@ map<string,list<CircleReturn>> * ChinessJumpChessControl::FindPathList(int Map_i
                             continue;
                         } else{
                             if(visited.count(p0->CircleMap_i)==0){
-                                ChessNode *t = head->FindNode(p0->CircleMap_i);
-                                if(t != nullptr){
-                                    g.push_back(t);
-                                    visited.insert(p0->CircleMap_i);
+                                Flag = false;
+                                for (int i = 0; i < 7; i++) {
+                                    if (p0->CircleMap_i == jump_chess_neighbor_id[i]) {
+                                        Flag = true;
+                                        break;
+                                    }
                                 }
+                                if(Flag == false) {
+                                    ChessNode *t = head->FindNode(p0->CircleMap_i);
+                                    if(t != nullptr){
+                                        g.push_back(t);
+                                        visited.insert(p0->CircleMap_i);
+                                    }
+                                }
+
                             } else{
                                 continue;
                             }
@@ -334,6 +344,10 @@ list<int>* ChinessJumpChessControl::GetMatchList(ChessColor *sec, int sec_count)
                     result_list->push_back(1);
                 }
             }
+        }
+    }else{
+        if(deal_sec[1] == 0){
+            result_list->push_back(0);
         }
     }
     return result_list;
