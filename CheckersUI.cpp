@@ -306,7 +306,8 @@ void CheckersUI::UpdateChessBoard() {
     int cur_x,cur_y;
     ChessColor cur_color;
     int i=0;
-    //update to memory
+    //
+
 
     //update to show
     Mat mat = chessmapmat_no_chess_org.clone();
@@ -317,6 +318,11 @@ void CheckersUI::UpdateChessBoard() {
         i++;
         head++;
     }
+    /*
+    if(drawProbablePathList_Save.size() > 0)
+        Circle(&drawProbablePathList_Save,0,CHESS_RADIUS+2);*/
+    if(oneMouseDown_no_update >0)
+        return;
     chessmapmat = mat;
     this->DrawBackground();
     this->DrawButton(1);
@@ -475,9 +481,12 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
                 oneMouseDown++;//标记这个变量目前已经选中了，下一次再进入就不再🥇🥇这段代码，而是金else另外2个分支
 
                 drawProbablePathList.clear();
+                drawProbablePathList_Save.clear();
                 //显示当前所有可能的跳动路径。
                 control->ProbableJumpPathALLShow(curChessPoint,pcurChess->CircleMap_i,0,&drawProbablePathList);
                 Circle(&drawProbablePathList,0,CHESS_RADIUS+2);
+                oneMouseDown_no_update = 1;
+                //drawProbablePathList_Save.assign(drawProbablePathList.begin(),drawProbablePathList.end());
                 imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新以下
                 //如果是第二次鼠标down下来，并且目标位置是空白位置则进入
                 //CanJumpFun函数判断这次Jump Chess跳动是否合法，如果不合法，则不允许跳动。
@@ -496,6 +505,7 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
                 old_cur_Pos = curChessPoint;
                 old_cur_i = cur_i;
                 oneMouseDown = 0;//重置鼠标down的flag，已经两次点击了，下一次就是一个新的棋子要移动，这次已经移动完毕。
+                oneMouseDown_no_update = 0;
 
 
                 //当第二次单击的地方是当其已经选择中的棋子在的位置，则需要取消选中状态。
@@ -508,6 +518,7 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
                 old_cur_Pos = curChessPoint;
                 old_cur_i = cur_i;
                 oneMouseDown = 0;
+                oneMouseDown_no_update = 0;
                 imshow(WINDOW_NAME_CHESS, chessmapmat);//刷新以下
             }
             delete(pcurChess);

@@ -303,7 +303,7 @@ list<int>* ChinessJumpChessControl::GetMatchList(ChessColor *sec, int sec_count)
     //transform the sec[]
     deal_sec[0] = 0 ; //add the jump chess to firt stop,other chesses add back
     for(int i =0; i< sec_count; i++){
-        if(sec[i] == SHARELIGHTGREEN) {
+        if(sec[i] == SHARELIGHTGREEN || sec[i] == NOCHESS ) {
             deal_sec[i+1] = 0;
         }else if(sec[i] == -1 ){
             deal_sec[i+1] = -1;

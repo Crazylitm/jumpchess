@@ -57,6 +57,10 @@ private:
     //
     BGFGSegmentor Segmentor;
 
+    //
+    list<Point> drawProbablePathList_Save;
+    int oneMouseDown_no_update = 0;
+
 public:
     CheckersMapLimitCheck checker;
     map<int,list<CircleReturn>> MapChessControlMemory;
