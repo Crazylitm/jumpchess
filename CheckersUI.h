@@ -14,13 +14,17 @@
 #include <map>
 #include "ChessCamera.h"
 #include "ChessNode.h"
+#include "FrameProcessor/BGFGSegmentor.h"
+#include "UI.h"
+
 using namespace cv;
 using  namespace std;
 const int  WINDOW_WIDTH = 1200;
 const int  WINDOW_HIGHT = 900;
 const int  RED_TOP_5_1_X = WINDOW_WIDTH/2;
 const int  RED_TOP_5_1_Y = 30;
-class CheckersUI {
+
+class CheckersUI : public UI {
 private:
     Mat chessmapmat;
     Mat chessmapmat_no_chess_org;
@@ -50,6 +54,9 @@ private:
 
     ChessCamera camera;
 
+    //
+    BGFGSegmentor Segmentor;
+
 public:
     CheckersMapLimitCheck checker;
     map<int,list<CircleReturn>> MapChessControlMemory;
@@ -71,6 +78,7 @@ public:
         button_begin = imread("../image/button_begin.png",IMREAD_UNCHANGED);
 
         control = new ChinessJumpChessControl(this->chessmapmat,&this->checker,&MapChessControlMemory);
+        Segmentor.setUI(this);
     }
     CheckersUI(ChinessJumpChessControl *p){
         control = p;
@@ -110,6 +118,12 @@ public:
     void Triangle(Point p1,Point p2,Point P3,ChessColor color);
     void Triangle();
     void InitChess();
+    void UpdateChessBoard();
+    void printChessOrNoChes(Mat& mat,Point dist,ChessColor chessColor);
+    void Initcamera(){
+
+        //camera.init(&MapChessControlMemory,Segmentor);
+    }
     Point getMapXY(int x ,int y);//通过逻辑棋盘坐标的x，y获得实际的画图UI的x，y坐标
     void printChess(Point org,Point dist,ChessColor chess);
     int cvAdd4cMat_q(cv::Mat &dst, cv::Mat &scr, double scale);
@@ -132,11 +146,15 @@ public:
     void printChessMap();
     void DrawButton(int type);
     void DrawBackground();
+    void update(){
+        UpdateChessBoard();
+    }
 };
 
 static void onMouseHandle(int event,int x, int y ,int flags,void* param){
     CheckersUI *p = (CheckersUI*)param;
     p->onMouseHandle_inner(event,x,y,flags,param);
 }
+
 
 #endif //JUMP0_CHECKERSUI_H

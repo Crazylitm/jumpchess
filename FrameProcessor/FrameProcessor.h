@@ -9,7 +9,11 @@
 
 class FrameProcessor {
 public:
-    virtual void process(Mat &input,Mat &output){} ;
+    virtual void process(Mat &input,Mat &output)=0 ;
+    virtual void init()=0;
+    virtual void setMemMap(map<int,list<CircleReturn>>* map)=0;
+    virtual void setUpdateMemfp(void(*fpun)())=0;
+    virtual void setThreshold(int id)=0;
 };
 
 

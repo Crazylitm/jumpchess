@@ -3,17 +3,176 @@
 //
 
 #include "BGFGSegmentor.h"
+bool BGFGSegmentor::judgeLastoneAndThisoneEqual(vector<Output>& lastone,vector<Output>& thisone) {
+        if(lastone.size() != thisone.size())
+            return false;
+        int findEqualSum=0;
+        for(int i =0 ; i < thisone.size();  i++){
+            for(int j =0 ; j < lastone.size(); j++){
 
+                 if(rectA_intersect_rectB(thisone[i].box,lastone[j].box)){
+                     findEqualSum++;
+                     continue;
+                 }
+                if(thisone[i].box.x == lastone[j].box.x &&
+                   thisone[i].box.y == lastone[j].box.y){
+                    findEqualSum++;
+
+                }
+            }
+        }
+        if(findEqualSum == thisone.size() )
+            return true;
+
+    return false;
+}
 void BGFGSegmentor::process(Mat &input, Mat &output) {
     //process_v1(input,output);
     //process_v2(input,output);
     //input = in_fun;
     //process_v3(in_fun,output);
-    DrawChessStandLines(input,output);
+
     //LocatChessCircle(input,output);
+    vector<Output> result;
+    static vector<Output> lastoneResult;
+    Mat input_save;
+    vector<Output> result_nochess;
+    vector<Output> result_nochess_v2;
+    vector<Output> result_nochess_v3;
+    output = input;//save input data to output,for do not update
+
+    input_save = input.clone();
+    if (test.Detect(input, net, result)) {
+        test.drawPred(input, result, color);
+        output = input;
+    }
+    else {
+        cout << "Detect jump chess Failed!"<<endl;
+
+    }
+
+
+    if (test.Detect(input_save, net_no_ches, result_nochess,2)) {
+        //
+        vector<Output>::iterator itor;
+        int i =0;
+        for(itor=result_nochess.begin(); itor != result_nochess.end();itor++,i++ ){
+            result_nochess_v2.push_back(result_nochess[i]);
+            for(int j=0; j <result.size();j++){
+                if(rectA_intersect_rectB(result_nochess[i].box,result[j].box)){
+                    result_nochess_v2.pop_back();
+                }
+            }
+        }
+
+        i =0;
+        int j =0;
+        vector<Output>::iterator itor_j;
+        for(itor=result_nochess_v2.begin(); itor != result_nochess_v2.end();itor++,i++ ){
+            result_nochess_v3.push_back(result_nochess_v2[i]);
+            for(j=i+1,itor_j=result_nochess_v2.begin(); itor_j !=result_nochess_v2.end();itor_j++,j++){
+
+                if(rectA_intersect_rectB(result_nochess_v2[i].box,result_nochess_v2[j].box)){
+                        result_nochess_v3.pop_back();
+                }
+            }
+        }
+        if(result_nochess_v2.size() != result_nochess_v3.size()){
+            cout << "find duplicate chess" << endl;
+        }
+        test.drawPred(output, result_nochess_v3, color,2);
+    }
+    else {
+        cout << "Detect no chess Failed!"<<endl;
+
+    }
+
+    //add 2023.2.5 for check chess ui of yolov5 detect
+    outPutUi.setOutputMat(output);
+    outPutUi.DrawBackground();
+    outPutUi.DrawButton(ButtonTypeStatus);
+    outPutUi.setDetectResult(result);
+    outPutUi.setDetectResult_no_chess(result_nochess_v3);
+
+    //if have read the parse config or parse the init,to flag =true;
+    if(lastoneResult.size() <=0)
+        lastoneResult.assign(result.begin(),result.end());
+    if(had_save_flag && (judgeLastoneAndThisoneEqual(lastoneResult,result) == false || result.size()<=0)){
+        outPutUi.setSaveFlag(had_save_flag);
+        outPutUi.parseDetectChessPositionToBoardUpdateFromSaveResult(result,result_nochess_v3);
+        update();
+        lastoneResult.clear();
+        lastoneResult.assign(result.begin(),result.end());
+        //imshow(WINDOW_NAME_CHESS_OUTPUT,outPutUi.getOutputMat());//刷新以下
+    }
 
 }
+void BGFGSegmentor::init(){
+    initMouseParam();
+}
+void BGFGSegmentor::rotate(cv::Mat src, cv::Mat& dst, double angle)
+{
+    cv::Size src_sz = src.size();
+    cv::Size dst_sz(src_sz.width, src_sz.height);
 
+    cv::Point center = cv::Point(src.cols / 2, src.rows / 2);//旋转中心
+    cv::Mat rot_mat = cv::getRotationMatrix2D(center, angle, 1.0);//获得仿射变换矩阵
+
+    cv::warpAffine(src, dst, rot_mat, dst_sz);
+}
+
+void BGFGSegmentor::initMouseParam() {
+    setMouseCallback(WINDOW_NAME_CHESS_OUTPUT,onMouseHandle_BGFGSegmentor_imShow,(void*)this);
+    //setMouseCallback(WINDOW_NAME_CHESS_INPUT,onMouseHandle_Camera_imShow_in,(void*)this);
+    printf("initMouseParam\n") ;
+
+}
+void BGFGSegmentor::onMouseHandle_BGFGSegmentor_inner(int event, int x, int y, int flags, void *param){
+    switch(event){
+        case EVENT_MOUSEMOVE:
+        {
+
+        }
+            break;
+        case EVENT_LBUTTONUP:
+        {
+            //printf("EVENT_LBUTTONUP\n") ;
+            outPutUi.DrawButton(1);
+            ButtonTypeStatus = 1;
+            imshow(WINDOW_NAME_CHESS_OUTPUT,outPutUi.getOutputMat());//刷新以下
+        }
+            break;
+        case EVENT_LBUTTONDOWN:
+        {
+            //printf("EVENT_LBUTTONDOWN\n") ;
+            if(x>=900 && x <1200 && y>=30 && y<=90) {
+                outPutUi.DrawButton(0);
+                ButtonTypeStatus = 0;
+                had_save_flag = false;
+                outPutUi.setSaveFlag(had_save_flag);
+                outPutUi.CalculateDetectResult();
+                imshow(WINDOW_NAME_CHESS_OUTPUT,outPutUi.getOutputMat());//刷新以下
+                int key = 0;
+                while(1){
+                    key = waitKey();
+                    if(key == 13  || key == 83 || key == 115){
+                        // enter, spacebar, s=save
+                        //save
+                        cout << "save detect result to DetectConfigFile.ini" <<endl;
+                        outPutUi.parseDetectMapToMemory();// to mem
+                        update();
+                        had_save_flag = true;
+                        outPutUi.setSaveFlag(had_save_flag);
+                        //imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新以下
+                    }else{
+                        break;
+                    }
+                }
+            }
+        }
+            break;
+    }
+}
 void BGFGSegmentor::process_v1(Mat &input, Mat &output) {
     cvtColor(input,gray,COLOR_BGR2GRAY);
     if(background.empty()){
@@ -247,7 +406,7 @@ void BGFGSegmentor::DrawChessStandLines(Mat &input, Mat &output) {
            -1,
            LINE_AA);
 
-    int thickness = 5;
+    int thickness = 2;
     int lineType = 8;
     line(input,
          point_a,

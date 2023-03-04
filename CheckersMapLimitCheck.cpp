@@ -155,3 +155,15 @@ list<Point>* CheckersMapLimitCheck::getChessNeighbourList(Point curnode) {
 
     return  p;
 }
+int CheckersMapLimitCheck::getCircleMapPostion(int x, int y) {
+    if(x<1 || y <1 || x > 17)
+        return -1;
+    int iResult=-2;
+    for(int i=0; i < MAX_CHESS;i++){
+        if(CircleMap[i][0] == x &&
+           CircleMap[i][1] == y)
+            iResult = i;
+            break;
+    }
+    return iResult;
+}

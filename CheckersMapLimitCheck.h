@@ -12,7 +12,64 @@ using namespace cv;
 const int MAX_CELL=192;
 const int MAX_CHESS=121;
 
+struct DetectChessThreeinfo{
+    int index;
+    int x;
+    int y;
+    ChessColor chessColor;
+public:
+    DetectChessThreeinfo(int redfirst_index,int redfirst_x,int redfirst_y,ChessColor color){
+        index = redfirst_index;
+        x = redfirst_x;
+        y = redfirst_y;
+        chessColor = color;
+    }
+    DetectChessThreeinfo(){
+        index = -1;
+    }
+    void setInfo(int redfirst_index,int redfirst_x,int redfirst_y,ChessColor color){
+        index = redfirst_index;
+        x = redfirst_x;
+        y = redfirst_y;
+        chessColor = color;
+    }
+};
 class CheckersMapLimitCheck {
+public:
+    CheckersMapLimitCheck(){
+        for(int i=0;i < MAX_CHESS ;i ++){
+            int x = CircleMap[i][0];
+            int y = CircleMap[i][1];
+            int color1 = CircleMap[i][2];
+
+            if(mappingChessPosition[y].size() <= 0){
+                vector<DetectChessThreeinfo> info;
+                info.push_back(DetectChessThreeinfo(i,x,y,ChessColor(color1)));
+                mappingChessPosition[y] = info;
+            }else{
+
+                mappingChessPosition[y].push_back(DetectChessThreeinfo(i,x,y,ChessColor(color1)));
+            }
+
+
+        }
+        for(int i=5;i<=13;i++){
+            vector<DetectChessThreeinfo> info = mappingChessPosition[i];
+            vector<DetectChessThreeinfo> info_save,info_new;
+            for(int j=0;j<info.size();j++){
+                if(info[j].chessColor != ChessColor(BLUE) &&
+                        info[j].chessColor != ChessColor(WHITE) ){
+                    info_new.push_back(info[j]);
+                }else {
+                    info_save.push_back(info[j]);
+                }
+            }
+            for(int z=info_save.size()-1;z>=0;z--){
+                info_new.push_back(info_save[z]);
+            }
+            mappingChessPosition[i] = info_new;
+        }
+    }
 public:
     int  mapXCountToYMin2Max[MAX_X][2] {
             {5,5},//X=1, Y:Min=5:Max=5
@@ -34,7 +91,15 @@ public:
             {13,13},//X=17,Y:Min=13,Max=13
     };
 public:
+    map<int,vector<DetectChessThreeinfo>> mappingChessPosition;
+
+
     int CircleMap[MAX_CHESS][3]={
+            /*
+              top Blue : x first line , (1,5)
+              top Red : y first line , (5,1)
+
+            */
             //RED 10
             {5,1,RED},{6,2,RED},{5,2,RED},{7,3,RED},{6,3,RED},{5,3,RED},{8,4,RED},{7,4,RED},{6,4,RED},{5,4,RED},
             //GREEN 20
@@ -294,9 +359,7 @@ public:
             {{9,12},{9,13},{8,12}}
     };
 public:
-    CheckersMapLimitCheck(){
 
-    }
     bool IsLegalPosition(int x ,int y);
 
     int getDistanceFromRED_5_1_point_X(int x,int y);
@@ -304,6 +367,7 @@ public:
     ChessColor getChessColor(int x,int y);
     ChessColor  getCircleColor(int x,int y);
     list<Point>* getChessNeighbourList(Point curnode);
+    int getCircleMapPostion(int x,int y);
 
 };
 static CheckersMapLimitCheck chesschecker;

@@ -7,7 +7,9 @@
 
 #include "ChessInclude.h"
 #include "FrameProcessor/FrameProcessor.h"
-#include "FrameProcessor/BGFGSegmentor.h"
+//#include "FrameProcessor/BGFGSegmentor.h"
+#define WINDOW_NAME_CHESS_OUTPUT "Chess Capture Output"
+#define WINDOW_NAME_CHESS_INPUT "Chess Capture Input"
 class ChessCamera {
     FrameProcessor* frameProcessor;
     //OpenCV视频捕获对象
@@ -17,10 +19,10 @@ class ChessCamera {
     // 回调函数是否被调用
     bool callIt;
     //输入窗口的显示名称
-    string windowNameInput;
+    string windowNameInput="Chess Capture Input";
     string windowsNameDealIn="Video Deal in Win";
     //输出窗口的显示名称
-    string windowNameOutput;
+    string windowNameOutput="Chess Capture Output";
     //帧之间的延时
     int delay;
     //已经处理的帧数
@@ -32,8 +34,9 @@ class ChessCamera {
 
     Mat camera_matrix = Mat(3, 3, CV_32FC1);
     Mat distortion_coefficients;
+    //Mat output_mat_windows;
 public:
-   void init();
+   void init(map<int,list<CircleReturn>>* map,FrameProcessor& segmentor);
    void init_vtest();
    void setFrameProcessor(void(*frameProcessingCallback)(Mat&,Mat&)){
      process = frameProcessingCallback;
@@ -41,11 +44,13 @@ public:
    void setFrameProcessor(FrameProcessor* frameProcessorPtr){
        process =0;
        frameProcessor = frameProcessorPtr;
+       frameProcessorPtr->init();
        callProcess();
    }
    bool setInput(int id){
        fnumber =0;
        capture.release();
+       stopIt();
        return capture.open(id,CAP_V4L);
    }
    bool isOpened(){
@@ -65,10 +70,12 @@ public:
    }
    void displayInput(string wn){
        windowNameInput = wn;
-       namedWindow(windowNameInput);
+       //destroyWindow(windowNameInput);
+       //namedWindow(windowNameInput);
    }
    void displayOutput(string wn){
        windowNameOutput = wn;
+       //destroyWindow(windowNameOutput);
        namedWindow(windowNameOutput);
    }
    void run();
@@ -86,7 +93,12 @@ public:
        return fnumber;
    }
    void DoUndistort(Mat &src,Mat &out);
+    void setMemMap(map<int,list<CircleReturn>>* map){
+        frameProcessor->setMemMap(map);
+    }
+    void setUpdateMemfp(void(*fpun)()){
+        frameProcessor->setUpdateMemfp(fpun);
+    }
 };
-
 
 #endif //JUMP0_CHESSCAMERA_H

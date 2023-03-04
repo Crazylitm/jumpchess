@@ -4,7 +4,6 @@
 
 #include "CheckersUI.h"
 
-
 void CheckersUI::DrawFiledCircle(Mat img, Point center,int radius) {
     int thickness = -1;
     int lineType = LINE_AA;
@@ -160,6 +159,45 @@ Point CheckersUI::getMapXY(int x, int y) {
 
     return Point(begx+x_dis*xwidth,begy+yhigh*y_dis);
 }
+void CheckersUI::printChessOrNoChes(Mat &mat, Point dist, ChessColor chessColor) {
+    Mat curmat;
+    switch(chessColor){
+        case RED:
+            curmat = redchess;
+            break;
+        case GREEN:
+            curmat = greenchess;
+            break;
+        case ROSERED:
+            curmat = roseredchess;
+            break;
+        case ORANGE:
+            curmat = orangechess;
+            break;
+        case WHITE:
+            curmat = whirtechess;
+            break;
+        case BLUE:
+            curmat = bluechess;
+            break;
+        default:
+            curmat = redchess;//should no chess img,but i can recover by chessmapmat_no_chess_org
+    }
+    int high = curmat.rows/2;
+    int with = curmat.cols/2;
+
+    if(chessColor != ChessColor(NOCHESS)){
+        Rect rect = Rect(dist.x-with,dist.y-high,curmat.cols,curmat.rows);
+
+        //开始把棋子和背景融合在一起，这里面涉及到棋子圆形和方形之间透明的部分和背景融合的处理
+        Mat img1 = mat;
+        Mat img1_t1(img1, rect);//该沟通函数生成一个指向chessmapmat的一个局部rect的指针，后续的修改都会作用到chessmapmat上
+
+        cvAdd4cMat_q(img1_t1,curmat,1.0);//这个函数能解决加载的棋子图片外围透明和背景融合在一起的问题。
+
+    }
+
+}
 void CheckersUI::printChess(Point org,Point dist,ChessColor chess) {
     Mat curmat;
     Mat curmat_bak;
@@ -230,6 +268,8 @@ void CheckersUI::DrawButton(int type) {
 
     int hight = button_begin.rows;
     int with  = button_begin.cols;
+    //btton on mouse click downing = type =1 click uping type=0
+    //once mouse click run type1 and type 0
     if(type == 1){
         //button on
         Point dest(110,110);
@@ -243,7 +283,7 @@ void CheckersUI::DrawButton(int type) {
         Mat destimg = chessmapmat;
         Mat destimg1(destimg,dest_rect);
         cvAdd4cMat_q(destimg1,img1,1.0);
-    }else if(type ==0 ){
+     }else if(type ==0 ){
         //button off
         //button on
         Point dest(110,165);
@@ -257,9 +297,30 @@ void CheckersUI::DrawButton(int type) {
         Mat destimg1_off(destimg_off,dest_rect);
         cvAdd4cMat_q(destimg1_off,img1_off,1.0);
 
-        //camera
-        camera.init();
+        //camera open
+        camera.init(&MapChessControlMemory,Segmentor);
     }
+
+}
+void CheckersUI::UpdateChessBoard() {
+    int cur_x,cur_y;
+    ChessColor cur_color;
+    int i=0;
+    //update to memory
+
+    //update to show
+    Mat mat = chessmapmat_no_chess_org.clone();
+    map<int,list<CircleReturn>>::iterator head = MapChessControlMemory.begin();
+    while(head !=MapChessControlMemory.end()){
+        checker.CircleMap[head->first][2] = head->second.begin()->curColor;
+        printChessOrNoChes(mat,Point(head->second.begin()->curPoint.x,head->second.begin()->curPoint.y),head->second.begin()->curColor);
+        i++;
+        head++;
+    }
+    chessmapmat = mat;
+    this->DrawBackground();
+    this->DrawButton(1);
+    imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新yi下
 }
 void CheckersUI::InitChess() {
     int x=0,y=0;
@@ -499,10 +560,18 @@ CircleReturn* CheckersUI::getCirclePosXY(int x, int y) {
 
 
         if(getDistance(p,Point(x,y))<=CHESS_RADIUS){
+            map<int,list<CircleReturn>>::iterator iterMap = MapChessControlMemory.find(i);
+            if(iterMap !=MapChessControlMemory.end())
+            {
+                ret->curColor=iterMap->second.begin()->curColor;
+                ret->curPoint=iterMap->second.begin()->curPoint;
+                ret->CircleMap_i = iterMap->second.begin()->CircleMap_i;
+            }else{
+                ret->curColor = chess;
+                ret->curPoint = p;
+                ret->CircleMap_i =i;
+            }
 
-            ret->curColor=chess;
-            ret->curPoint=p;
-            ret->CircleMap_i = i;
             return ret;
         }
     }
@@ -513,6 +582,8 @@ CircleReturn* CheckersUI::getCirclePosXY(int x, int y) {
 void CheckersUI::initMouseParam() {
 
     setMouseCallback(WINDOW_NAME_CHESS,onMouseHandle,(void*)this);
+    //setMouseCallback(WINDOW_NAME_CHESS_OUTPUT,onMouseHandle_Camera_imShow,(void*)this);
+
 }
 /*
  *

@@ -3,7 +3,7 @@
 //
 #include <cstdio>
 #include "jump.h"
-
+#include "ChessCamera.h"
 
 int Chess::getx(){
     return  x;
@@ -844,25 +844,30 @@ void ChessCircle::setChessNextCircle(      ChessCircle *nextChessCircle0,
 }
 int main(int,char *argv[])
 {
-    CheckersMap* jumper = new CheckersMap();
 
+    CheckersMap* jumper = new CheckersMap();
     namedWindow(WINDOW_NAME_CHESS);
     CheckersUI ui;
     ui.Triangle();
     ui.DrawBackground();
     ui.DrawButton(1);
+    Mat bg = ui.getmat();
+    imshow(WINDOW_NAME_CHESS,bg);
+
+
     //ui.printChess(ui.getMapXY(6,3),ui.getMapXY(7,7),RED);
     //ui.printChess(ui.getMapXY(7,7),ui.getMapXY(8,9),RED);
     //ui.printChess(ui.getMapXY(13,17),ui.getMapXY(16,13),ORANGE);
-    Mat bg = ui.getmat();
-    imshow(WINDOW_NAME_CHESS,bg);
+
+
+    //ui.Initcamera();
 
     CheckersImageObject ob;
 
     //ob.findChessColor_v2(RED);
     //ob.findChessColor(BLUE);
 
-
+    //system("pause");
     waitKey();
     return 1;
 }
