@@ -1079,6 +1079,7 @@ void Camera_OutPut_UI::DrawButton(int type) {
 
 
 }
+// Map one chess have six neighbors chess,so this function can update every chess data;
 void Camera_OutPut_UI::ReUpdateCheckersUIMapChessControlMemory() {
     int i=0;
     map<int,list<CircleReturn>> *head = MapChessControlMemory;
@@ -1121,8 +1122,10 @@ void Camera_OutPut_UI::parseDetectMapToMemory() {
             iterfind->second.begin()->Map_y = iter->second.info.y;
             iterfind->second.begin()->curColor= iter->second.info.chessColor;
             iterfind->second.begin()->curPoint;// = iter->second.circle_center;
-            if(iter->second.info.chessColor == ChessColor(NOCHESS))
+            if(iter->second.info.chessColor == ChessColor(NOCHESS)){
                 iterfind->second.begin()->Down_Chess_flag = true;
+                //iterfind->second.begin()->curColor = SHARELIGHTGREEN;
+            }
             else
                 iterfind->second.begin()->Down_Chess_flag = false;
 
@@ -1142,6 +1145,7 @@ void Camera_OutPut_UI::parseDetectMapToMemory() {
 }
 void Camera_OutPut_UI::parseDetectChessPositionToBoardUpdateFromSaveResult( vector<Output>& output,vector<Output>& output_nochess) {
     map<int,list<CircleReturn>> *head = MapChessControlMemory;
+    vector<int> colorChessMap_iList;
 
     for(int i =0; i < output.size() ;i++){
        // map<int,DetectResult_UI>::iterator iter = detectRetMap.begin();
@@ -1159,6 +1163,8 @@ void Camera_OutPut_UI::parseDetectChessPositionToBoardUpdateFromSaveResult( vect
                     iterfind->second.begin()->Map_x = iter->second.x;
                     iterfind->second.begin()->Map_y = iter->second.y;
                     iterfind->second.begin()->curColor= ConvertYoloColor2ChessColor(YoloChessColor(output[i].id));
+                    //save
+                    colorChessMap_iList.push_back(iterfind->second.begin()->CircleMap_i);
                 }
                 break;
             }
@@ -1181,7 +1187,16 @@ void Camera_OutPut_UI::parseDetectChessPositionToBoardUpdateFromSaveResult( vect
                     iterfind->second.begin()->CircleMap_i = iter->second.index;
                     iterfind->second.begin()->Map_x = iter->second.x;
                     iterfind->second.begin()->Map_y = iter->second.y;
-                    iterfind->second.begin()->curColor= ConvertYoloColor2ChessColor(YoloChessColor(Y_NOCHESS));
+                    bool find_flag = false;
+                    //judge dupliate; jump curColor
+                    for(int z=0; z < colorChessMap_iList.size(); z++){
+                        if(iterfind->second.begin()->CircleMap_i == colorChessMap_iList[z]){
+                            find_flag = true;
+                            break;
+                        }
+                    }
+                    if(find_flag == false)
+                         iterfind->second.begin()->curColor= ConvertYoloColor2ChessColor(YoloChessColor(Y_NOCHESS));
                 }
                 break;
             }

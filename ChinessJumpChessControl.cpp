@@ -79,7 +79,7 @@ map<string,list<CircleReturn>> * ChinessJumpChessControl::FindPathList(int Map_i
    int x = checker->CircleMap[Map_id][0];
    int y = checker->CircleMap[Map_id][1];
    ChessColor  c = (ChessColor)checker->CircleMap[Map_id][2];
-   if(c == SHARELIGHTGREEN) return nullptr;// 当前不是棋子，所以不需要跳动
+   if(c == SHARELIGHTGREEN || c == NOCHESS) return nullptr;// 当前不是棋子，所以不需要跳动
 
     map<string,list<CircleReturn>>  *result_map = new map<string,list<CircleReturn>>();
     vector<int> find_st;

@@ -37,8 +37,9 @@ void BGFGSegmentor::process(Mat &input, Mat &output) {
     static vector<Output> lastoneResult;
     Mat input_save;
     vector<Output> result_nochess;
-    vector<Output> result_nochess_v2;
-    vector<Output> result_nochess_v3;
+    vector<Output> result_nochess_v2;//delete result dupliate
+    vector<Output> result_nochess_v3;//delete self dupliate
+
     output = input;//save input data to output,for do not update
 
     input_save = input.clone();
@@ -86,6 +87,7 @@ void BGFGSegmentor::process(Mat &input, Mat &output) {
         cout << "Detect no chess Failed!"<<endl;
 
     }
+    //
 
     //add 2023.2.5 for check chess ui of yolov5 detect
     outPutUi.setOutputMat(output);
