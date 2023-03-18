@@ -50,7 +50,7 @@ void ChessCamera::init(map<int,list<CircleReturn>>* map,FrameProcessor& segmento
     file_storage.release();
     */
 
-    if(setInput(0)){
+    if(setInput(2)){
         double rate = capture.get(CAP_PROP_FPS);
         setDelay(1000/rate);
         stopAtFrameNo(-1);
@@ -61,7 +61,7 @@ void ChessCamera::init(map<int,list<CircleReturn>>* map,FrameProcessor& segmento
         capture.set(CAP_PROP_FRAME_WIDTH,1024);//1920
         setFrameProcessor(&segmentor);
         setMemMap(map);//BGFGSegmentor.setMemMap() ;
-
+        segmentor.ReadIniToSaveInfo();
         run();
     }
 

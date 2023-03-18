@@ -16,7 +16,7 @@ set(SOURCE_FILES   utils/MultipleImageWindow.cpp utils/MultipleImageWindow.h
         FrameProcessor/FrameProcessor.h FrameProcessor/BGFGSegmentor.cpp
         FrameProcessor/BGFGSegmentor.h FrameProcessor/Camera_OutPut_UI.cpp FrameProcessor/Camera_OutPut_UI.h
         yolovx/yolo.cpp yolovx/yolo.h FrameProcessor/Chessboardinfo.cpp FrameProcessor/Chessboardinfo.h utils/inifile.cpp utils/inifile.h
-        utils/inifile.cpp utils/inifile.h UI.h)
+        utils/inifile.cpp utils/inifile.h UI.h utils/SaveData2INIFile.cpp utils/SaveData2INIFile.h)
 add_executable(jump0 ${SOURCE_FILES}   jump.cpp)
 target_link_libraries( jump0 ${OpenCV_LIBS} yolo)
 

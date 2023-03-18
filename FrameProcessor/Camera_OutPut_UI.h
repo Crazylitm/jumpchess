@@ -15,7 +15,7 @@
 #include "../utils/inifile.h"
 //#include "../CheckersUI.h"
 
-using namespace inifile;
+
 class SaveDetectResultInfo{
 public:
     // logical world or memory chess board info
@@ -120,7 +120,7 @@ class Camera_OutPut_UI {
     CheckersMapLimitCheck checker;
 
     map<int,DetectResult_UI> detectRetMap;//record every once detect result
-    map<int,SaveDetectResultInfo> SaveDetectPhysical2LogicalInfo;
+
 
     //
     bool temp_debug_flag= false;
@@ -129,7 +129,7 @@ class Camera_OutPut_UI {
     //
     //CheckersUI *ui;
     map<int,list<CircleReturn>> *MapChessControlMemory;
-    IniFile inifp;
+
     //
     //had save
     bool had_save_flag = false;
@@ -146,6 +146,8 @@ private:
         return (cent1.y > cent2.y);
     }
 public:
+    vector<SaveDetectResultInfo> SaveDetectPhysical2LogicalInfo;
+    vector<SaveDetectResultInfo> SaveDetectPhysical2LogicalInfo_v2;
     Camera_OutPut_UI(){
         button_check_yolov5 = imread("../image/button_begin.png",IMREAD_UNCHANGED);
     }
@@ -199,6 +201,8 @@ public:
     }
     //
     void ReUpdateCheckersUIMapChessControlMemory();
+    //
+    void diffSaveV1_V2();
 };
 
 

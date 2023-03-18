@@ -14,6 +14,8 @@ public:
     virtual void setMemMap(map<int,list<CircleReturn>>* map)=0;
     virtual void setUpdateMemfp(void(*fpun)())=0;
     virtual void setThreshold(int id)=0;
+    virtual bool ReadIniToSaveInfo()=0;
+
 };
 
 

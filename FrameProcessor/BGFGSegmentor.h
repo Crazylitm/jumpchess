@@ -14,6 +14,7 @@
 #include "FrameProcessor.h"
 #include "Camera_OutPut_UI.h"
 #include "../UI.h"
+#include "../utils/SaveData2INIFile.h"
 
 using namespace std;
 using namespace cv;
@@ -67,7 +68,8 @@ class BGFGSegmentor : public FrameProcessor,UI{
 
      //had save
      bool had_save_flag = false;
-
+     bool had_UI_update_no = false;
+     SaveData2INIFile fpfile;
 public:
      BGFGSegmentor(){
          Max_B_center = Point(-1,-1);
@@ -128,6 +130,8 @@ public:
     }
     bool judgeLastoneAndThisoneEqual(vector<Output>& lastone,vector<Output>& thisone);
 
+    //
+    bool ReadIniToSaveInfo();
 
 };
 static void onMouseHandle_BGFGSegmentor_imShow(int event,int x, int y ,int flags,void* param){

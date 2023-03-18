@@ -99,15 +99,28 @@ void BGFGSegmentor::process(Mat &input, Mat &output) {
     //if have read the parse config or parse the init,to flag =true;
     if(lastoneResult.size() <=0)
         lastoneResult.assign(result.begin(),result.end());
-    if(had_save_flag && (judgeLastoneAndThisoneEqual(lastoneResult,result) == false || result.size()<=0)){
+    //if have saved detect ini file result or this once is ok then .....
+    if(had_save_flag && (had_UI_update_no == false || (judgeLastoneAndThisoneEqual(lastoneResult,result) == false || result.size()<=0))){
         outPutUi.setSaveFlag(had_save_flag);
+        //parse Result to chess Board
         outPutUi.parseDetectChessPositionToBoardUpdateFromSaveResult(result,result_nochess_v3);
         update();
+        had_UI_update_no = true;
         lastoneResult.clear();
         lastoneResult.assign(result.begin(),result.end());
         //imshow(WINDOW_NAME_CHESS_OUTPUT,outPutUi.getOutputMat());//刷新以下
     }
 
+}
+bool BGFGSegmentor::ReadIniToSaveInfo() {
+    if(fpfile.GetiniFile(outPutUi.SaveDetectPhysical2LogicalInfo) == 0)
+    {// ok
+        //update();
+        had_save_flag = true;
+        outPutUi.setSaveFlag(had_save_flag);
+        return true;
+    }
+    return false;
 }
 void BGFGSegmentor::init(){
     initMouseParam();
@@ -165,6 +178,8 @@ void BGFGSegmentor::onMouseHandle_BGFGSegmentor_inner(int event, int x, int y, i
                         update();
                         had_save_flag = true;
                         outPutUi.setSaveFlag(had_save_flag);
+                        fpfile.SaveiniFile(outPutUi.SaveDetectPhysical2LogicalInfo);
+                        outPutUi.diffSaveV1_V2();
                         //imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新以下
                     }else{
                         break;

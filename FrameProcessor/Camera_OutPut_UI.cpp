@@ -6,13 +6,13 @@
 
 void Camera_OutPut_UI::CalculateHadSaveFromConfigParseResult() {
     detectRetMap.clear();
-    map<int,SaveDetectResultInfo>::iterator iter = SaveDetectPhysical2LogicalInfo.begin();
+    vector<SaveDetectResultInfo>::iterator iter = SaveDetectPhysical2LogicalInfo.begin();
 
     for(int i=0; i < result_current.size();i++){
         Rect ARect = result_current[i].box;
         while(iter != SaveDetectPhysical2LogicalInfo.end()){
-            Point center  =  iter->second.circle_center;
-            int radius = iter->second.radius;
+            Point center  =  iter->circle_center;
+            int radius = iter->radius;
             if(ARect.contains(center)){
             }
             iter++;
@@ -1136,7 +1136,7 @@ void Camera_OutPut_UI::parseDetectMapToMemory() {
             info.index = iter->second.info.index;
             info.x = iter->second.info.x;
             info.y = iter->second.info.y;
-            SaveDetectPhysical2LogicalInfo.insert(pair<int,SaveDetectResultInfo>(info.index,info));
+            SaveDetectPhysical2LogicalInfo.push_back(info);
         }
         iter++;
         i++;
@@ -1149,19 +1149,19 @@ void Camera_OutPut_UI::parseDetectChessPositionToBoardUpdateFromSaveResult( vect
 
     for(int i =0; i < output.size() ;i++){
        // map<int,DetectResult_UI>::iterator iter = detectRetMap.begin();
-        map<int,SaveDetectResultInfo>::iterator iter = SaveDetectPhysical2LogicalInfo.begin();
+        vector<SaveDetectResultInfo>::iterator iter = SaveDetectPhysical2LogicalInfo.begin();
         Rect ARect = output[i].box;
         while(iter != SaveDetectPhysical2LogicalInfo.end()){
 
-            Point center  =  iter->second.circle_center;
-            int radius = iter->second.radius;
+            Point center  =  iter->circle_center;
+            int radius = iter->radius;
             if(ARect.contains(center)){
-                map<int,list<CircleReturn>>::iterator  iterfind = head->find(iter->first);
+                map<int,list<CircleReturn>>::iterator  iterfind = head->find(iter->index);
                 if(iterfind != head->end())
                 {
-                    iterfind->second.begin()->CircleMap_i = iter->second.index;
-                    iterfind->second.begin()->Map_x = iter->second.x;
-                    iterfind->second.begin()->Map_y = iter->second.y;
+                    iterfind->second.begin()->CircleMap_i = iter->index;
+                    iterfind->second.begin()->Map_x = iter->x;
+                    iterfind->second.begin()->Map_y = iter->y;
                     iterfind->second.begin()->curColor= ConvertYoloColor2ChessColor(YoloChessColor(output[i].id));
                     //save
                     colorChessMap_iList.push_back(iterfind->second.begin()->CircleMap_i);
@@ -1174,19 +1174,19 @@ void Camera_OutPut_UI::parseDetectChessPositionToBoardUpdateFromSaveResult( vect
 
     for(int i =0; i < output_nochess.size() ;i++){
         // map<int,DetectResult_UI>::iterator iter = detectRetMap.begin();
-        map<int,SaveDetectResultInfo>::iterator iter = SaveDetectPhysical2LogicalInfo.begin();
+        vector<SaveDetectResultInfo>::iterator iter = SaveDetectPhysical2LogicalInfo.begin();
         Rect ARect = output_nochess[i].box;
         while(iter != SaveDetectPhysical2LogicalInfo.end()){
 
-            Point center  =  iter->second.circle_center;
-            int radius = iter->second.radius;
+            Point center  =  iter->circle_center;
+            int radius = iter->radius;
             if(ARect.contains(center)){
-                map<int,list<CircleReturn>>::iterator  iterfind = head->find(iter->first);
+                map<int,list<CircleReturn>>::iterator  iterfind = head->find(iter->index);
                 if(iterfind != head->end())
                 {
-                    iterfind->second.begin()->CircleMap_i = iter->second.index;
-                    iterfind->second.begin()->Map_x = iter->second.x;
-                    iterfind->second.begin()->Map_y = iter->second.y;
+                    iterfind->second.begin()->CircleMap_i = iter->index;
+                    iterfind->second.begin()->Map_x = iter->x;
+                    iterfind->second.begin()->Map_y = iter->y;
                     bool find_flag = false;
                     //judge dupliate; jump curColor
                     for(int z=0; z < colorChessMap_iList.size(); z++){
@@ -1204,4 +1204,18 @@ void Camera_OutPut_UI::parseDetectChessPositionToBoardUpdateFromSaveResult( vect
         }
     }
     ReUpdateCheckersUIMapChessControlMemory();
+}
+void Camera_OutPut_UI::diffSaveV1_V2() {
+    vector<SaveDetectResultInfo>::iterator iter = SaveDetectPhysical2LogicalInfo.begin();
+    vector<SaveDetectResultInfo>::iterator iter_v2;
+    for(;iter != SaveDetectPhysical2LogicalInfo.end();iter++){
+        iter_v2 = SaveDetectPhysical2LogicalInfo_v2.begin();
+        for(;iter_v2 != SaveDetectPhysical2LogicalInfo_v2.end(); iter_v2++){
+            if(iter->index == iter_v2->index)
+            {
+                cout << "find 1" << endl;
+            }
+        }
+
+    }
 }

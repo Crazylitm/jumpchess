@@ -737,7 +737,7 @@ namespace inifile
 /*--------------------------------------------------------------------------*/
     void IniFile::release()
     {
-        iniFilePath = "";
+        //iniFilePath = "";
 
         for (IniSection_it it = sections_vt.begin(); it != sections_vt.end(); ++it) {
             delete (*it);  // 清除section
