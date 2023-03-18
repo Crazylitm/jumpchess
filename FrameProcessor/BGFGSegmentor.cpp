@@ -81,7 +81,12 @@ void BGFGSegmentor::process(Mat &input, Mat &output) {
         if(result_nochess_v2.size() != result_nochess_v3.size()){
             cout << "find duplicate chess" << endl;
         }
-        test.drawPred(output, result_nochess_v3, color,2);
+        try{
+            test.drawPred(output, result_nochess_v3, color,2);
+        }catch (int e ){
+            cout << "error " << e << endl;
+        }
+
     }
     else {
         cout << "Detect no chess Failed!"<<endl;
@@ -107,7 +112,8 @@ void BGFGSegmentor::process(Mat &input, Mat &output) {
         update();
         had_UI_update_no = true;
         lastoneResult.clear();
-        lastoneResult.assign(result.begin(),result.end());
+        //lastoneResult.assign(result.begin(),result.end());
+        std::copy(result.begin(),result.end(),std::back_inserter(lastoneResult));
         //imshow(WINDOW_NAME_CHESS_OUTPUT,outPutUi.getOutputMat());//刷新以下
     }
 

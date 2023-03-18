@@ -235,6 +235,8 @@ map<string,list<CircleReturn>> * ChinessJumpChessControl::FindPathList(int Map_i
                     list<CircleReturn> *listnode = new list<CircleReturn>();
                     for (iter = rec->begin(); iter != rec->end(); ++iter) {
                         int id_test = MAP_ID[*iter];
+                        if(id_test == -1 )
+                            continue;
                         set<int>::iterator it_temp0 = sec_visited.find(id_test);
                         CircleReturn *p0 = GetNodeInfo(*it_temp0);
                         ///
