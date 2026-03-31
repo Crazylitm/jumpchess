@@ -359,7 +359,7 @@ CircleReturn* ChinessJumpChessControl::GetNodeInfo(int Map_id) {
     iter_org = MapChessControlMemory->find(Map_id);
     CircleReturn *cur_node= nullptr,*returan_node = nullptr;
     if (iter_org != MapChessControlMemory->end()) {
-        list<CircleReturn> curlist = iter_org->second;
+        list<CircleReturn>& curlist = iter_org->second; // use reference, not copy, to avoid dangling pointer
         list<CircleReturn>::iterator iterlist;
 
         for (iterlist = curlist.begin(); iterlist != curlist.end(); iterlist++) {

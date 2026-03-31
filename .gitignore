@@ -4,3 +4,20 @@ cmake-build-debug/
 .idea/
 history/
 
+# Python virtual environment (1.4GB)
+yolov5_env/
+
+# Training dataset
+yolov5_dataset/
+
+# Pre-trained base model
+yolo11n.pt
+
+# Training run artifacts (large .pt weight files)
+models/runs/
+
+# Training logs
+models/train_*.log
+models/train_log.txt
+models/train_done.log
+

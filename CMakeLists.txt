@@ -4,6 +4,7 @@ project(yolo)
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 add_library(${PROJECT_NAME} SHARED yolovx/yolo.cpp)
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 set(SOURCE_FILES   utils/MultipleImageWindow.cpp utils/MultipleImageWindow.h
         main4.cpp jump.h jump.cpp
         CheckersUI.cpp CheckersUI.h

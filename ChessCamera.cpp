@@ -42,30 +42,29 @@ void ChessCamera::init_vtest() {
 void ChessCamera::init(map<int,list<CircleReturn>>* map,FrameProcessor& segmentor ) {
     displayInput(WINDOW_NAME_CHESS_INPUT);
     displayOutput(WINDOW_NAME_CHESS_OUTPUT);
-    //导入相机内参和畸变系数矩阵
-    /*
-    FileStorage file_storage("/home/litm/CLionProjects/MyBiaoDing/Intrinsic.xml", FileStorage::READ);
-    file_storage["CameraMatrix"] >> camera_matrix;
-    file_storage["Dist"] >> distortion_coefficients;
-    file_storage.release();
-    */
 
-    if(setInput(2)){
-        double rate = capture.get(CAP_PROP_FPS);
-        setDelay(1000/rate);
-        stopAtFrameNo(-1);
-        //BGFGSegmentor segmentor;
-        segmentor.setThreshold(25);
-        //initMouseParam();
-        capture.set(CAP_PROP_FRAME_HEIGHT,768);//1080
-        capture.set(CAP_PROP_FRAME_WIDTH,1024);//1920
-        setFrameProcessor(&segmentor);
-        setMemMap(map);//BGFGSegmentor.setMemMap() ;
-        segmentor.ReadIniToSaveInfo();
-        run();
+    // Try camera devices 0, 1, 2 in order (device 0 is the default on most platforms)
+    bool opened = false;
+    for(int dev = 0; dev <= 2 && !opened; dev++){
+        opened = setInput(dev);
+    }
+    if(!opened){
+        printf("[ChessCamera] No camera device found (tried 0-2)\n");
+        return;
     }
 
-
+    double rate = capture.get(CAP_PROP_FPS);
+    if(rate <= 0) rate = 30.0;  // Guard against 0/negative FPS
+    setDelay(1000/rate);
+    stopAtFrameNo(-1);
+    segmentor.setThreshold(25);
+    capture.set(CAP_PROP_FRAME_HEIGHT,768);//1080
+    capture.set(CAP_PROP_FRAME_WIDTH,1024);//1920
+    setFrameProcessor(&segmentor);
+    dontCallProcess(); // Show raw frames — YOLO model paths are platform-specific
+    setMemMap(map);//BGFGSegmentor.setMemMap() ;
+    segmentor.ReadIniToSaveInfo();
+    run();
 }
 void ChessCamera::DoUndistort(Mat& src, Mat& out) {
     cv::undistort(src, out, camera_matrix, distortion_coefficients);
@@ -117,8 +116,9 @@ void ChessCamera::run() {
                 */
 
 
-            if(delay >0 && waitKey(delay) >=0){
-                //stopIt();
+            if(delay >0){
+                int key = waitKey(delay);
+                if(key == 27 || key == 'q' || key == 'Q') stopIt(); // ESC/Q stops camera
             }
 
             if(frameToStop >=0 && getFrameNumber() == fnumber)

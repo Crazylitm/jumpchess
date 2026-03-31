@@ -51,7 +51,7 @@ public:
        fnumber =0;
        capture.release();
        stopIt();
-       return capture.open(id,CAP_V4L);
+       return capture.open(id);  // Use default backend (cross-platform)
    }
    bool isOpened(){
        return capture.isOpened();

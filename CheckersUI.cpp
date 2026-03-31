@@ -262,6 +262,7 @@ void CheckersUI::DrawBackground() {
     Mat destimg1(destimg,dest_rect);
     cvAdd4cMat_q(destimg1,img1,1.0);
     putText(chessmapmat,"Video Capture",Point(960,20),FONT_HERSHEY_COMPLEX,0.5,Scalar(0,0,0));
+    putText(chessmapmat,"Press Q to quit",Point(10,880),FONT_HERSHEY_SIMPLEX,0.6,Scalar(30,30,30),1,LINE_AA);
 
 }
 void CheckersUI::DrawButton(int type) {
@@ -324,6 +325,17 @@ void CheckersUI::UpdateChessBoard() {
     if(oneMouseDown_no_update >0)
         return;
     chessmapmat = mat;
+    // 重新绘制所有棋盘位置的编号（叠加在棋子图像之上）
+    for(int ni=0; ni<MAX_CHESS; ni++){
+        int nx = checker.CircleMap[ni][0];
+        int ny = checker.CircleMap[ni][1];
+        if(checker.IsLegalPosition(nx,ny)){
+            Point np = getMapXY(nx,ny);
+            char ntext[20];
+            sprintf(ntext,"%d",ni);
+            putText(chessmapmat,ntext,Point(np.x-10,np.y+2),1,1,Scalar(0,0,0));
+        }
+    }
     this->DrawBackground();
     this->DrawButton(1);
     imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新yi下
@@ -498,6 +510,14 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
                 Circle(&drawProbablePathList,1,CHESS_RADIUS+2);
 
                 printChess(oneMouseDownPose, curChessPoint,  old_curColor);//然后在目的位置打印棋子
+                // 重绘数字：出发位置显示棋盘编号，目的位置在棋子图像上方显示编号
+                {
+                    char ntext[20];
+                    sprintf(ntext,"%d",old_cur_i);
+                    putText(chessmapmat,ntext,Point(oneMouseDownPose.x-10,oneMouseDownPose.y+2),1,1,Scalar(0,0,0));
+                    sprintf(ntext,"%d",cur_i);
+                    putText(chessmapmat,ntext,Point(curChessPoint.x-10,curChessPoint.y+2),1,1,Scalar(0,0,0));
+                }
                 imshow(WINDOW_NAME_CHESS, chessmapmat);//刷新以下
                 updateCircleMap(old_cur_i, old_cur_Pos,SHARELIGHTGREEN);//更新CircleMap的数据将数组中old位置标记为空，因为棋子已经移动走了
                 updateCircleMap(cur_i, curChessPoint, old_curColor);//在目标位置CircleMap的数据数组的位置更新为新的棋子的数据，这样表示棋子已经🐚落进去了。
@@ -532,22 +552,20 @@ void CheckersUI::updateCircleMap(int CircleMap_i,Point p, ChessColor color) {
     }
     checker.CircleMap[CircleMap_i][2]= color;
 
-    /*
+    // Sync MapChessControlMemory so getCirclePosXY reads the updated color.
+    // Bug fix: use reference (not copy) so the in-place update actually persists.
     map<int, list<CircleReturn>>::iterator iter_org;
     iter_org = MapChessControlMemory.find(CircleMap_i);
-    CircleReturn *cur_node= nullptr,*returan_node = nullptr;
     if (iter_org != MapChessControlMemory.end()) {
-        list<CircleReturn> curlist = iter_org->second;
+        list<CircleReturn>& curlist = iter_org->second;  // reference, not copy
         list<CircleReturn>::iterator iterlist;
         for (iterlist = curlist.begin(); iterlist != curlist.end(); iterlist++) {
-            cur_node= &(*iterlist);
-            if (cur_node->nextType == SELF){
-                (*iterlist).curColor = color;
+            if (iterlist->nextType == SELF){
+                iterlist->curColor = color;
                 break;
             }
         }
     }
-    */
 }
 CircleReturn* CheckersUI::getCirclePosXY(int x, int y) {
     Point retpoint(-1,-1);

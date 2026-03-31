@@ -82,7 +82,7 @@ public:
             ny = honecombCircle[i].gety();
 
             if(nx == x && ny == y)
-                return  &triangleCircle[i][0];
+                return  &honecombCircle[i];
         }
         return nullptr;
     }
