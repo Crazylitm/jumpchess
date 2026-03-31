@@ -304,7 +304,7 @@ swift -e 'import ApplicationServices; print(AXIsProcessTrusted())'
 ### 2人对弈（RED vs ORANGE）
 
 ```bash
-python3 /tmp/jump_game2.py
+python3 scripts/jump_game2.py
 ```
 
 **特性：**
@@ -315,7 +315,7 @@ python3 /tmp/jump_game2.py
 ### 3v3 团队对弈
 
 ```bash
-python3 -u /tmp/jump_game3v3.py 2>&1 | tee /tmp/3v3_log.txt
+python3 -u scripts/jump_game3v3.py 2>&1 | tee /tmp/3v3_log.txt
 ```
 
 **队伍分配：**
