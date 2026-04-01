@@ -2,6 +2,15 @@
 
 机械手臂控制的人机中国跳棋博弈程序（Chinese Checkers with Robot Arm）
 
+<p align="center">
+  <img src="inputImage/IMG_20190928_215047.jpg" width="48%" alt="跳棋棋盘 — 六色棋子归位" />
+  &nbsp;&nbsp;
+  <img src="2023.1.23_roboflow.com.my_jump_chess_picture/Webcam/2022-12-20-214858.jpg" width="48%" alt="摄像头视角 — 对弈中" />
+</p>
+<p align="center">
+  <em>左：六色棋子初始布局 &nbsp;|&nbsp; 右：摄像头实时识别对弈中</em>
+</p>
+
 有兴趣的可以添加钉钉号：simomo
 
 ---
