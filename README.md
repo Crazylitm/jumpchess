@@ -1,72 +1,79 @@
 # jumpchess
 
-机械手臂控制的人机中国跳棋博弈程序（Chinese Checkers with Robot Arm）
+> Chinese Checkers game system with robot arm control and AI vision (YOLO11n)
 
 <p align="center">
-  <img src="inputImage/IMG_20190928_215047.jpg" width="48%" alt="跳棋棋盘 — 六色棋子归位" />
+  <a href="README.md"><img src="https://img.shields.io/badge/lang-English-blue?style=flat-square" alt="English"/></a>
+  &nbsp;
+  <a href="README_zh.md"><img src="https://img.shields.io/badge/语言-中文-red?style=flat-square" alt="中文"/></a>
+</p>
+
+<p align="center">
+  <img src="inputImage/IMG_20190928_215047.jpg" width="48%" alt="Chinese Checkers board — all 6 colors ready" />
   &nbsp;&nbsp;
-  <img src="2023.1.23_roboflow.com.my_jump_chess_picture/Webcam/2022-12-20-214858.jpg" width="48%" alt="摄像头视角 — 对弈中" />
+  <img src="2023.1.23_roboflow.com.my_jump_chess_picture/Webcam/2022-12-20-214858.jpg" width="48%" alt="Webcam view — game in progress" />
 </p>
 <p align="center">
-  <em>左：六色棋子初始布局 &nbsp;|&nbsp; 右：摄像头实时识别对弈中</em>
+  <em>Left: 6-color pieces in starting positions &nbsp;|&nbsp; Right: webcam real-time recognition during a match</em>
 </p>
 
-有兴趣的可以添加钉钉号：simomo
+Contact: DingTalk **simomo** &nbsp;|&nbsp; WeChat **crazylitm** &nbsp;|&nbsp; Email **litianmin@gmail.com**
 
 ---
 
-## 项目目标
+## Project Roadmap
 
-| 阶段 | 目标 | 状态 |
-|------|------|------|
-| 第一阶段 | 纯软件跳棋棋盘 UI，支持完整走棋交互 | ✅ 完成 |
-| 第二阶段 | 摄像头识别物理棋盘，映射到软件数据结构 | ✅ 完成 2023.3.11 |
-| 第三阶段 | 软件指挥机械手臂准确移动棋子 | 进行中 |
-| 第四阶段 | 完成人机对弈全流程 | 待完成 |
-| 第五阶段 | 升级对弈算法，增强棋力 | 待完成 |
+| Phase | Goal | Status |
+|-------|------|--------|
+| Phase 1 | Software Chinese Checkers UI with full move interaction | ✅ Done |
+| Phase 2 | Camera-based physical board recognition, mapped to software data structures | ✅ Done 2023.3.11 |
+| Phase 3 | Software commanding robot arm to accurately move pieces | 🔄 In Progress |
+| Phase 4 | Complete human-vs-machine full gameplay loop | 📋 Planned |
+| Phase 5 | Upgrade game AI, strengthen chess engine | 📋 Planned |
 
 ---
 
-## 项目结构
+## Project Structure
 
 ```
 jumpchess/
-├── jump.cpp / jump.h          # 主程序入口，OpenCV 窗口事件循环
-├── CheckersUI.cpp / .h        # 棋盘 UI 核心：绘制、鼠标响应、棋子移动
-├── CheckersMapLimitCheck.cpp  # 坐标合法性检查、六边形距离计算
-├── ChinessJumpChessControl.cpp# 跳棋规则引擎：合法跳跃路径计算
-├── ChessCamera.cpp / .h       # 摄像头采集与 YOLO 识别联动
-├── FrameProcessor/            # 图像处理：背景分割、棋子检测
-│   ├── BGFGSegmentor          # 背景前景分割
-│   ├── Chessboardinfo         # 棋盘信息管理
-│   └── Camera_OutPut_UI       # 摄像头输出 UI
+├── jump.cpp / jump.h           # Main entry, OpenCV window event loop
+├── CheckersUI.cpp / .h         # Board UI core: draw, mouse events, piece movement
+├── CheckersMapLimitCheck.cpp   # Coordinate validation, hex distance calculation
+├── ChinessJumpChessControl.cpp # Game rule engine: valid jump path calculation (BFS)
+├── ChessCamera.cpp / .h        # Camera capture + YOLO inference integration
+├── FrameProcessor/             # Image processing: background segmentation, detection
+│   ├── BGFGSegmentor           # Background/foreground segmentation
+│   ├── Chessboardinfo          # Board state management
+│   └── Camera_OutPut_UI        # Camera output UI
 ├── yolovx/
-│   ├── yolo.h                 # YOLO 推理接口（已升级为 YOLO11n）
-│   └── yolo.cpp               # YOLO 推理实现（anchor-free 解析）
+│   ├── yolo.h                  # YOLO inference interface (upgraded to YOLO11n)
+│   └── yolo.cpp                # YOLO inference implementation (anchor-free parsing)
 ├── models/
-│   ├── best.onnx              # 当前生效模型：YOLO11n（mAP50=99.4%）
-│   └── best_yolov5_backup.onnx# 旧 YOLOv5n 模型备份
-├── yolov5_dataset/            # 训练数据集（185张训练图，6类棋子）
-│   └── data.yaml              # 数据集配置
-├── models/runs/
-│   └── yolo11n_chess/         # YOLO11n 训练结果
-├── build/                     # CMake 编译输出目录
-│   └── jump0                  # 可执行文件
-└── utils/                     # 工具类
+│   ├── best.onnx               # Active model: YOLO11n (mAP50 = 99.4%)
+│   └── best_yolov5_backup.onnx # Legacy YOLOv5n backup
+├── scripts/
+│   ├── jump_game2.py           # 2-player AI simulation (RED vs ORANGE)
+│   ├── jump_game3v3.py         # 3v3 team AI match (fixed oscillation)
+│   ├── jump_game.py            # 2-player AI v1
+│   ├── jump_sim.py             # Basic single-player simulation
+│   └── export_yolo11.sh        # YOLO11n export + deploy helper
+└── build/
+    └── jump0                   # Compiled executable
 ```
 
 ---
 
-## 编译与运行
+## Build & Run
 
-### 依赖环境
+### Prerequisites
 
-- macOS（Apple Silicon 已验证，M3）
-- CMake >= 3.7，C++14
-- OpenCV（含 dnn 模块）
-- Python 3.12 + ultralytics（用于训练/导出 YOLO 模型）
+- macOS (tested on Apple Silicon M3)
+- CMake >= 3.7, C++14
+- OpenCV (with `dnn` module)
+- Python 3.12 + `ultralytics` (for YOLO training/export only)
 
-### 编译
+### Build
 
 ```bash
 cd build
@@ -74,164 +81,165 @@ cmake ..
 make -j4
 ```
 
-### 运行
+### Run
 
 ```bash
 ./build/jump0
 ```
 
-**退出方式：** 按 `Q` 键 或 `ESC` 键退出程序（窗口左下角有提示）
+**To quit:** Press `Q` or `ESC` (hint shown in the bottom-left of the window)
 
 ---
 
-## 棋盘坐标系说明
+## Board Coordinate System
 
-棋盘使用逻辑坐标 `(x, y)`，范围 `x: 1~17, y: 1~17`：
+The board uses logical coordinates `(x, y)` with range `x: 1–17, y: 1–17`:
 
 ```
-坐标原点（5,1）= 屏幕像素 (600, 30)
-像素公式：screen_x = 600 + x_dis(x,y) * 30
-          screen_y = 30  + (y-1)     * 52
+Origin (5,1) → screen pixel (600, 30)
+screen_x = 600 + x_offset(x,y) × 30
+screen_y = 30  + (y − 1)       × 52
 ```
 
-6色棋子起始位置：
+Starting positions for each color:
 
-| 颜色 | 起始区域 | 目标对角 |
-|------|---------|---------|
-| RED（红） | 顶部 (x=5-8, y=1-4) | 底部 ORANGE 区 |
-| ORANGE（橙）| 底部 (x=10-13, y=14-17) | 顶部 RED 区 |
-| GREEN（绿） | 右上 (x=10-13, y=5-8) | 左中 WHITE 区 |
-| WHITE（白） | 左中 (x=5-8, y=10-13) | 右上 GREEN 区 |
-| ROSERED（玫红）| 右中 (x=14-17, y=10-13) | 左下 BLUE 区 |
-| BLUE（蓝） | 左下 (x=1-4, y=5-8) | 右中 ROSERED 区 |
+| Color | Start Zone | Target (opposite corner) |
+|-------|-----------|--------------------------|
+| RED | Top (x=5–8, y=1–4) | ORANGE zone (bottom) |
+| ORANGE | Bottom (x=10–13, y=14–17) | RED zone (top) |
+| GREEN | Top-right (x=10–13, y=5–8) | WHITE zone (left) |
+| WHITE | Left (x=5–8, y=10–13) | GREEN zone (top-right) |
+| ROSERED | Right (x=14–17, y=10–13) | BLUE zone (bottom-left) |
+| BLUE | Bottom-left (x=1–4, y=5–8) | ROSERED zone (right) |
 
 ---
 
-## 核心数据结构
+## Core Data Structures
 
 ```cpp
-// 棋盘状态双轨存储
-int CircleMap[MAX_CHESS][3];                      // 快速数组：[x, y, color]
-map<int, list<CircleReturn>> MapChessControlMemory; // 精确路径图
+// Dual-track board state storage
+int CircleMap[MAX_CHESS][3];                        // Fast array: [x, y, color]
+map<int, list<CircleReturn>> MapChessControlMemory; // Precise path graph
 
-// 更新棋子状态（两个存储保持同步）
+// Sync piece state (both storages kept in sync)
 void CheckersUI::updateCircleMap(int i, Point p, ChessColor color);
 
-// 获取合法跳跃路径（BFS）
+// Get valid jump paths (BFS)
 void ChinessJumpChessControl::ProbableJumpPathALLShow(Point cur, int i, int type, list<Point>* out);
 ```
 
 ---
 
-## YOLO 识别模块
+## YOLO Vision Module
 
-### 升级历史
+### Version History
 
-| 版本 | 时间 | mAP50 | 备注 |
-|------|------|-------|------|
-| YOLOv5n | 2023 | ~85% | 原始版本，anchor-based |
-| **YOLO11n** | 2026.03 | **99.4%** | 当前版本，anchor-free |
+| Version | Date | mAP50 | Notes |
+|---------|------|-------|-------|
+| YOLOv5n | 2023 | ~85% | Original, anchor-based |
+| **YOLO11n** | 2026.03 | **99.4%** | Current, anchor-free |
 
-### YOLO11n 模型信息
+### Model Details
 
 ```
-架构：  YOLO11n（Ultralytics，101层，258万参数，6.3 GFLOPs）
-输入：  640×640 RGB
-输出：  [1, 10, 8400]  即 [batch, 4+6classes, proposals]
-6类：   B(蓝) G(绿) O(橙) R(红) R2(玫红) W(白)
-训练集：185张训练图 + 53张验证图
+Architecture : YOLO11n (Ultralytics, 101 layers, 2.58M params, 6.3 GFLOPs)
+Input        : 640×640 RGB
+Output       : [1, 10, 8400]  →  [batch, 4+6_classes, proposals]
+Classes (6)  : B(blue) G(green) O(orange) R(red) R2(rosered) W(white)
+Training set : 185 images (train) + 53 images (val)
 ```
 
-各类别精度：
+### Per-Class Accuracy
 
-| 类别 | Precision | Recall | mAP50 | mAP50-95 |
-|------|-----------|--------|-------|----------|
-| B 蓝 | 97.3% | 99.7% | 99.2% | 88.1% |
-| G 绿 | 98.3% | 99.6% | 99.5% | 88.8% |
-| O 橙 | 99.8% | 98.3% | 99.5% | 89.6% |
-| R 红 | 94.6% | 100%  | 99.0% | 88.8% |
-| R2 玫红 | 99.8% | 99.4% | 99.5% | 88.6% |
-| W 白 | 99.8% | 97.8% | 99.4% | 86.1% |
-| **全部** | **98.3%** | **99.1%** | **99.4%** | **88.3%** |
+| Class | Precision | Recall | mAP50 | mAP50-95 |
+|-------|-----------|--------|-------|----------|
+| B (Blue) | 97.3% | 99.7% | 99.2% | 88.1% |
+| G (Green) | 98.3% | 99.6% | 99.5% | 88.8% |
+| O (Orange) | 99.8% | 98.3% | 99.5% | 89.6% |
+| R (Red) | 94.6% | 100% | 99.0% | 88.8% |
+| R2 (Rosered) | 99.8% | 99.4% | 99.5% | 88.6% |
+| W (White) | 99.8% | 97.8% | 99.4% | 86.1% |
+| **All** | **98.3%** | **99.1%** | **99.4%** | **88.3%** |
 
-### ONNX 输出解析（v11 vs v5 对比）
+### Output Parsing — v11 vs v5
 
 ```cpp
-// ── YOLOv5（旧，已废弃） ──────────────────────────────────────────
-// 输出：[1, 25200, 5+nc]，需 anchor 解码 + obj_conf 过滤
-// net_width = nc + 5;
+// ── YOLOv5 (old, removed) ────────────────────────────────────────────
+// Output: [1, 25200, 5+nc] — requires anchor decode + obj_conf filter
 // for stride × anchor × grid: decode(pdata[0..4], anchor_w/h)
 
-// ── YOLO11n / YOLOv8（当前） ─────────────────────────────────────
-// 输出：[1, 4+nc, 8400]，anchor-free，直接转置读取
+// ── YOLO11n / YOLOv8 (current) ──────────────────────────────────────
+// Output: [1, 4+nc, 8400] — anchor-free, read after transpose
 Mat output0 = netOutputImg[0].reshape(1, {4 + nc, 8400});
 Mat output_t;
-transpose(output0, output_t);   // → [8400, 4+nc]
-// 每行：[cx, cy, w, h, cls0, cls1, ..., cls(nc-1)]
-// 类别分即最终置信度，无需乘 obj_conf
+transpose(output0, output_t);     // → [8400, 4+nc]
+// Each row: [cx, cy, w, h, cls0, cls1, ..., cls(nc-1)]
+// Class score IS the confidence — no obj_conf multiplication needed
 ```
 
-### 重新训练模型
+### Retrain the Model
 
 ```bash
-cd /Users/mike/claude-work/jumpchess
+cd /path/to/jumpchess
 source yolov5_env/bin/activate
 
-# 训练（50 epochs，CPU，Apple M3 约 40 分钟）
+# Train (50 epochs, CPU, ~40 min on Apple M3)
 yolo train model=yolo11n.pt \
     data=yolov5_dataset/data.yaml \
     epochs=50 imgsz=640 batch=8 \
     project=models/runs name=yolo11n_chess
 
-# 导出 ONNX（opset=12 兼容 OpenCV DNN）
+# Export ONNX (opset=12 for OpenCV DNN compatibility)
 yolo export model=models/runs/yolo11n_chess/weights/best.pt \
     format=onnx opset=12 simplify=True
 
-# 替换模型
+# Deploy
 cp models/runs/yolo11n_chess/weights/best.onnx models/best.onnx
+```
+
+Or use the helper script:
+
+```bash
+bash scripts/export_yolo11.sh
 ```
 
 ---
 
-## 本次代码修改记录（2026.03）
+## Code Changes — 2026.03
 
-### 1. `CheckersUI.cpp` — 棋盘数字渲染 Bug 修复
+### 1. `CheckersUI.cpp` — Position Number Rendering Bug Fix
 
-**问题：** 棋子移动后，棋盘格子上的 CircleMap 编号消失，被棋子图像覆盖后不重绘。
+**Problem:** After a piece moved, the CircleMap index numbers on board cells were erased and not redrawn.
 
-**根本原因：**
-- `chessmapmat_no_chess_org`（背景底图）在 `InitChess()` 之前保存，不含编号
-- `printChess()` 恢复原位时从无编号背景恢复 → 擦掉编号
-- `UpdateChessBoard()` 从无编号背景重建 → 所有编号消失
+**Root cause:**
+- `chessmapmat_no_chess_org` (background snapshot) is saved before `InitChess()` runs — no numbers in it
+- `printChess()` restores from this numberless background → numbers wiped
+- `UpdateChessBoard()` rebuilds from same background → all numbers gone
 
-**修复方案：**
+**Fix:**
 
 ```cpp
-// 修复1：UpdateChessBoard() — 全量重绘后补绘所有编号
+// Fix 1: After UpdateChessBoard() full redraw, re-overlay all position numbers
 chessmapmat = mat;
-for(int ni=0; ni<MAX_CHESS; ni++){
-    if(checker.IsLegalPosition(nx, ny)){
+for (int ni = 0; ni < MAX_CHESS; ni++) {
+    if (checker.IsLegalPosition(nx, ny)) {
         putText(chessmapmat, text, Point(np.x-10, np.y+2), 1, 1, Scalar(0,0,0));
     }
 }
 
-// 修复2：鼠标移动后补绘出发位置和目标位置编号
+// Fix 2: After mouse move, re-overlay numbers for source and destination cells
 printChess(oneMouseDownPose, curChessPoint, old_curColor);
-// 补绘出发位置编号（格子恢复后保持编号）
 sprintf(ntext, "%d", old_cur_i);
 putText(chessmapmat, ntext, Point(oneMouseDownPose.x-10, oneMouseDownPose.y+2), ...);
-// 补绘目标位置编号（叠加在棋子图像上方）
 sprintf(ntext, "%d", cur_i);
 putText(chessmapmat, ntext, Point(curChessPoint.x-10, curChessPoint.y+2), ...);
 ```
 
-**效果：** 棋子移动后，格子编号始终可见；编号叠加在棋子图像上方，不被遮挡。
-
 ---
 
-### 2. `CheckersUI.cpp` — 退出提示
+### 2. `CheckersUI.cpp` — Quit Hint
 
-在窗口左下角增加退出提示文字，`DrawBackground()` 每次刷新时自动绘制：
+Added a quit reminder in the bottom-left corner, drawn on every `DrawBackground()` call:
 
 ```cpp
 putText(chessmapmat, "Press Q to quit",
@@ -241,151 +249,143 @@ putText(chessmapmat, "Press Q to quit",
 
 ---
 
-### 3. `yolovx/yolo.h` + `yolovx/yolo.cpp` — YOLO v5 → YOLO11n 升级
+### 3. `yolovx/yolo.h` + `yolo.cpp` — YOLO v5 → YOLO11n Upgrade
 
-**`yolo.h` 主要变更：**
+**`yolo.h` changes:**
 
 ```cpp
-// 删除（YOLOv5 anchor 参数，v11 不需要）
+// Removed (YOLOv5 anchor params — not needed in v11)
 - const float netAnchors[3][6] = { ... };
-- const int strideSize = 3;
+- const int   strideSize = 3;
 - const float netStride[4] = { 8, 16.0, 32, 64 };
 
-// 保留（接口不变）
+// Kept (public interface unchanged)
 const int netWidth  = 640;
 const int netHeight = 640;
-float classThreshold    = 0.25f;
-float nmsThreshold      = 0.45f;
+float classThreshold = 0.25f;
+float nmsThreshold   = 0.45f;
 ```
 
-**`yolo.cpp` 核心变更（`Detect()` 函数）：**
+**`yolo.cpp` — `Detect()` rewrite:**
 
 ```cpp
-// 旧 YOLOv5：三层 anchor 嵌套循环 + obj_conf 过滤（约60行）
-for (int stride = 0; stride < strideSize; stride++)
-    for (int anchor = 0; anchor < 3; anchor++)
-        for (int i ... j ...): float box_score = pdata[4]; ...
+// Old YOLOv5: 3-level nested anchor loop + obj_conf filter (~60 lines)
+for (int stride ...) for (int anchor ...) for (int i, j ...):
+    float box_score = pdata[4]; ...
 
-// 新 YOLO11n：转置后线性扫描（约20行）
+// New YOLO11n: transpose then linear scan (~20 lines)
 Mat output0 = netOutputImg[0].reshape(1, {4 + nc, 8400});
 Mat output_t;
 transpose(output0, output_t);           // [8400, 4+nc]
 for (int i = 0; i < 8400; i++, pdata += (4+nc)) {
     float cx=pdata[0], cy=pdata[1], w=pdata[2], h=pdata[3];
-    // pdata[4..9] 直接是各类别置信度
+    // pdata[4..9] are class confidences directly
 }
 ```
 
 ---
 
-### 4. `models/best.onnx` — 模型文件替换
+### 4. `models/best.onnx` — Model Replacement
 
-| | YOLOv5n（旧） | YOLO11n（新） |
-|--|--------------|--------------|
-| 文件大小 | 7.2 MB | 10.1 MB |
+| | YOLOv5n (old) | YOLO11n (new) |
+|--|---------------|---------------|
+| File size | 7.2 MB | 10.1 MB |
 | mAP50 | ~85% | **99.4%** |
-| 输出形状 | [1, 25200, 11] | [1, 10, 8400] |
-| 推理方式 | anchor-based | anchor-free |
+| Output shape | [1, 25200, 11] | [1, 10, 8400] |
+| Inference | anchor-based | anchor-free |
 
-旧模型已备份至 `models/best_yolov5_backup.onnx`。
+Old model backed up to `models/best_yolov5_backup.onnx`.
 
 ---
 
-## Python 自动对弈脚本
+## Python AI Match Scripts
 
-通过 macOS CGEvent 模拟鼠标点击，驱动 jump0 程序自动下棋。
+Simulates automatic gameplay by injecting macOS mouse events via CGEvent to drive the `jump0` window.
 
-### 前置条件
+### Prerequisites
 
 ```bash
-# 1. 开启辅助功能权限
-# 系统设置 → 隐私与安全 → 辅助功能 → 允许终端/Claude
+# Enable Accessibility permission
+# System Settings → Privacy & Security → Accessibility → allow Terminal / your app
 
-# 2. 确认权限
+# Verify
 swift -e 'import ApplicationServices; print(AXIsProcessTrusted())'
-# 输出 true 则正常
-
-# 3. 鼠标点击工具
-# /tmp/clk.swift  — 发送单次左键点击
-# /tmp/activate_jump0.swift — 将 jump0 窗口置前
+# Should print: true
 ```
 
-### 2人对弈（RED vs ORANGE）
+### 2-Player Match (RED vs ORANGE)
 
 ```bash
 python3 scripts/jump_game2.py
 ```
 
-**特性：**
-- 贪心评分 + 状态历史防循环
-- 最多 400 手，超出判平局
-- 实测：RED 在约 125 手内胜出
+- Greedy scoring + state-history anti-cycle
+- Max 400 moves; draw if exceeded
+- Benchmark: RED wins within ~125 moves
 
-### 3v3 团队对弈
+### 3v3 Team Match
 
 ```bash
 python3 -u scripts/jump_game3v3.py 2>&1 | tee /tmp/3v3_log.txt
 ```
 
-**队伍分配：**
+| Team | Colors | Goal |
+|------|--------|------|
+| Team A | RED + GREEN + ROSERED | Reach the 3 opposite corners |
+| Team B | ORANGE + WHITE + BLUE | Reach the 3 opposite corners |
 
-| 队伍 | 颜色 | 目标 |
-|------|------|------|
-| Team A | RED + GREEN + ROSERED | 分别到达对角三个角 |
-| Team B | ORANGE + WHITE + BLUE | 分别到达对角三个角 |
-
-**AI 算法（v2，修复版）：**
+**AI Algorithm (v2, oscillation-fixed):**
 
 ```
-1. 六边形精确距离：hex_dist(dx,dy) = max(|dx|,|dy|) 同号 / |dx|+|dy| 异号
-2. 最优目标分配：贪心为每颗棋分配最近的未占目标格，最小化总路程
-3. 方向惩罚：单棋距目标增加 n 格 → 扣 n×15 分（防止倒退）
-4. 逐棋反振荡：记录每棋上一步位置，禁止原路返回
-5. 跳棋链奖励：仅 +2 分（打破平分时偏好长跳，不覆盖方向评分）
-6. 保护目标区：已入目标区的棋子离开扣 500 分
+1. Hex distance: hex_dist(dx,dy) = max(|dx|,|dy|) same sign / |dx|+|dy| opposite sign
+2. Optimal target assignment: greedily assign each piece to its nearest unfilled target cell
+3. Direction penalty: piece moving away from target → deduct n×15 points
+4. Per-piece anti-oscillation: track last position per piece; forbid returning to it
+5. Jump chain bonus: +2 points only (tiebreaker; doesn't override direction scoring)
+6. Target zone protection: piece leaving its target zone → −500 points
 ```
 
-**Bug 修复记录（v1 → v2）：**
+**Oscillation fix (v1 → v2):**
 
-- **v1 问题：** `dist * 3` 跳棋奖励太大，反向 12 格长跳得 +36 分，覆盖 -10 的方向损失，导致棋子来回振荡
-- **v2 修复：** 奖励改为 +2；新增方向惩罚 `n×15`；新增 `piece_history` 逐棋位置跟踪
+- **v1 bug:** `dist * 3` jump bonus — a 12-cell reverse jump scored +36, overcoming a −10 direction penalty → backward oscillation
+- **v2 fix:** bonus reduced to flat `+2`; added `dir_delta × 15` direction penalty; added `piece_history` dict for per-piece tracking
 
-**实测结果（2026.03.31）：**
+**Match result (2026.03.31):**
 
 ```
-Team A 🔴🟢🌸 胜出！总手数: 549，用时: 13分37秒
+Team A 🔴🟢🌸 wins!  Total moves: 549  Time: 13m 37s
 
-完成顺序：
-  1st  RED     9分04秒
-  2nd  ROSERED 9分45秒
-  3rd  ORANGE  10分15秒（Team B）
-  4th  BLUE    10分54秒（Team B）
-  5th  GREEN   13分37秒（压轴完赛，Team A 胜定）
+Finish order:
+  1st  RED     9m 04s
+  2nd  ROSERED 9m 45s
+  3rd  ORANGE  10m 15s  (Team B)
+  4th  BLUE    10m 54s  (Team B)
+  5th  GREEN   13m 37s  (secured Team A victory)
 ```
 
 ---
 
-## 常见问题
+## FAQ
 
-**Q: 运行时鼠标不动？**
-A: 检查辅助功能权限：系统设置 → 隐私与安全 → 辅助功能 → 允许对应终端程序
+**Q: Mouse not moving during simulation?**
+A: Check Accessibility permission: System Settings → Privacy & Security → Accessibility → enable your terminal app.
 
-**Q: 识别精度下降？**
-A: 重新训练模型，参考"重新训练模型"章节。训练数据在 `yolov5_dataset/`。
+**Q: Detection accuracy dropped?**
+A: Retrain the model — see "Retrain the Model" section. Training data is in `yolov5_dataset/`.
 
-**Q: 编译报错找不到 OpenCV？**
-A: `brew install opencv`，或手动指定 `cmake -DOpenCV_DIR=/path/to/opencv ..`
+**Q: CMake can't find OpenCV?**
+A: `brew install opencv`, or pass `-DOpenCV_DIR=/path/to/opencv` to cmake.
 
-**Q: 编译报 YOLO 相关错误？**
-A: 确认 `yolovx/yolo.h` 和 `yolovx/yolo.cpp` 是最新版（YOLO11n 格式，无 `netAnchors` 变量）
+**Q: YOLO-related compile errors?**
+A: Confirm `yolovx/yolo.h` and `yolo.cpp` are the latest YOLO11n version (no `netAnchors` variable).
 
 ---
 
-## 开发日志
+## Development Log
 
-| 日期 | 内容 |
-|------|------|
-| 2020.02 | 初始版本：纯软件跳棋 UI |
-| 2023.01 | 接入 Roboflow 数据集，训练 YOLOv5n |
-| 2023.03.11 | 完成摄像头识别棋盘第二阶段目标 |
-| 2026.03.31 | 修复棋子编号渲染 Bug；升级 YOLO11n（mAP50=99.4%）；增加 AI 自动对弈脚本（2人/3v3） |
+| Date | Milestone |
+|------|-----------|
+| 2020.02 | Initial release: software-only Chinese Checkers UI |
+| 2023.01 | Integrated Roboflow dataset, trained YOLOv5n |
+| 2023.03.11 | Phase 2 complete: camera-based board recognition |
+| 2026.03.31 | Fix piece-number rendering bug; upgrade YOLO11n (mAP50=99.4%); add AI auto-play scripts (2P & 3v3) |
