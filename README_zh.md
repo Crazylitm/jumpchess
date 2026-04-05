@@ -205,6 +205,76 @@ bash scripts/export_yolo11.sh
 
 ---
 
+## 代码审查与重构（2026.04）
+
+对全项目代码进行了质量扫描（屎山指数 1-10，越高越差），综合评分 **7.2 / 10**，完成以下修复。
+
+### Bug 修复（影响逻辑正确性）
+
+#### `CheckersMapLimitCheck.cpp` — `break` 在 `if` 外面
+
+`getCircleMapPostion()` 中由于缺少花括号，`break` 语句位于 `if` 块**外面**，导致循环只检查第一个元素就退出：
+
+```cpp
+// 修复前（bug）：break 永远只检查第一个
+for(int i=0; i < MAX_CHESS; i++){
+    if(CircleMap[i][0] == x && CircleMap[i][1] == y)
+        iResult = i;
+        break;  // ← 不在 if 里！
+}
+
+// 修复后
+for(int i=0; i < MAX_CHESS; i++){
+    if(CircleMap[i][0] == x && CircleMap[i][1] == y) {
+        iResult = i;
+        break;
+    }
+}
+```
+
+#### `ChinessJumpChessControl.cpp` — `static` 变量遮蔽外层循环变量
+
+`FindPathList()` 内部声明了 `static int i = 1000`，遮蔽了外层 for 循环的 `i`，引发隐式错误：
+
+```cpp
+// 修复前（bug）：遮蔽外层循环变量 i
+static int i = 1000;
+i++;
+
+// 修复后：改名为 seq_id
+static int seq_id = 1000;
+seq_id++;
+```
+
+### 代码简化（46 行 → 1 行）
+
+#### `CheckersMapLimitCheck.cpp` — `getDistanceFromRED_5_1_point_X()`
+
+原函数包含 46 条硬编码 if 语句，分析后发现全部等价于单一公式 `y - 2*x + 9`：
+
+```cpp
+// 修复前：46 条 if
+if(x == 13 && y == 5) return -12;
+if(x == 13 && y == 6) return -11;
+// ... 还有 44 行 ...
+
+// 修复后：一行公式
+return y - 2*x + 9;
+```
+
+### 内存泄漏修复（6 处）
+
+| 文件 | 泄漏对象 | 修复方式 |
+|------|---------|---------|
+| `ChinessJumpChessControl.cpp` | `list<int> *rec`（GetMatchList 返回值）| 加 `delete rec` |
+| `ChinessJumpChessControl.cpp` | `list<CircleReturn> *listnode` | 加 `delete listnode` |
+| `ChinessJumpChessControl.cpp` | `map<...> *p`（FindPathList 返回值）| 加 `delete p` |
+| `CheckersUI.cpp` | `CircleReturn *node`（initMapList 内）| 加 `delete node` |
+| `CheckersUI.cpp` | `list<CircleReturn> *listnode`（initMapList 内）| 加 `delete listnode` |
+| `CheckersUI.cpp` | `list<Point> *p_neighbourNode`（initMapList 内）| 加 `delete p_neighbourNode` |
+
+---
+
 ## 本次代码修改记录（2026.03）
 
 ### 1. `CheckersUI.cpp` — 棋盘数字渲染 Bug 修复
@@ -394,3 +464,4 @@ A: 确认 `yolovx/yolo.h` 和 `yolovx/yolo.cpp` 是最新版（YOLO11n 格式，
 | 2023.01 | 接入 Roboflow 数据集，训练 YOLOv5n |
 | 2023.03.11 | 完成摄像头识别棋盘第二阶段目标 |
 | 2026.03.31 | 修复棋子编号渲染 Bug；升级 YOLO11n（mAP50=99.4%）；增加 AI 自动对弈脚本（2人/3v3） |
+| 2026.04.05 | 代码审查与重构：修复 `break` 位置逻辑 bug、修复 6 处内存泄漏、46 行 if 链简化为公式 `y-2x+9`、修复 static 变量遮蔽问题 |

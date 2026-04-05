@@ -205,6 +205,77 @@ bash scripts/export_yolo11.sh
 
 ---
 
+## Code Review & Refactoring — 2026.04
+
+A full codebase quality scan was performed (scored 1–10, higher = worse). Overall project score: **7.2 / 10**. The following issues were identified and fixed.
+
+### Bug Fixes (logic correctness)
+
+#### `CheckersMapLimitCheck.cpp` — `break` outside `if` block
+
+`getCircleMapPostion()` contained a `break` statement that was **outside** the `if` block due to missing braces, causing the loop to always exit after checking only the first element:
+
+```cpp
+// Before (bug): break always fires, only first element ever checked
+for(int i=0; i < MAX_CHESS; i++){
+    if(CircleMap[i][0] == x && CircleMap[i][1] == y)
+        iResult = i;
+        break;  // ← NOT inside the if!
+}
+
+// After (fixed)
+for(int i=0; i < MAX_CHESS; i++){
+    if(CircleMap[i][0] == x && CircleMap[i][1] == y) {
+        iResult = i;
+        break;
+    }
+}
+```
+
+#### `ChinessJumpChessControl.cpp` — `static` variable shadows outer loop variable
+
+Inside `FindPathList()`, a `static int i = 1000` declaration shadowed the outer for-loop's `i`, causing silent incorrect behavior:
+
+```cpp
+// Before (bug): shadows outer loop variable i
+static int i = 1000;
+i++;
+
+// After (fixed): renamed to seq_id
+static int seq_id = 1000;
+seq_id++;
+```
+
+### Simplification (46 lines → 1 line)
+
+#### `CheckersMapLimitCheck.cpp` — `getDistanceFromRED_5_1_point_X()`
+
+The function contained 46 hardcoded `if` statements. Analysis revealed they are **all equivalent** to the single formula `y - 2*x + 9`:
+
+```cpp
+// Before: 46 if-statements
+if(x == 13 && y == 5) return -12;
+if(x == 13 && y == 6) return -11;
+// ... 44 more lines ...
+if(x == 17) return (y-13)-12;
+
+// After: one formula
+return y - 2*x + 9;
+```
+
+### Memory Leak Fixes (6 locations)
+
+| File | Leaked Object | Fix |
+|------|--------------|-----|
+| `ChinessJumpChessControl.cpp` | `list<int> *rec` (GetMatchList return) | Added `delete rec` |
+| `ChinessJumpChessControl.cpp` | `list<CircleReturn> *listnode` | Added `delete listnode` |
+| `ChinessJumpChessControl.cpp` | `map<...> *p` (FindPathList return) | Added `delete p` |
+| `CheckersUI.cpp` | `CircleReturn *node` in initMapList | Added `delete node` |
+| `CheckersUI.cpp` | `list<CircleReturn> *listnode` in initMapList | Added `delete listnode` |
+| `CheckersUI.cpp` | `list<Point> *p_neighbourNode` in initMapList | Added `delete p_neighbourNode` |
+
+---
+
 ## Code Changes — 2026.03
 
 ### 1. `CheckersUI.cpp` — Position Number Rendering Bug Fix
@@ -389,3 +460,4 @@ A: Confirm `yolovx/yolo.h` and `yolo.cpp` are the latest YOLO11n version (no `ne
 | 2023.01 | Integrated Roboflow dataset, trained YOLOv5n |
 | 2023.03.11 | Phase 2 complete: camera-based board recognition |
 | 2026.03.31 | Fix piece-number rendering bug; upgrade YOLO11n (mAP50=99.4%); add AI auto-play scripts (2P & 3v3) |
+| 2026.04.05 | Code review & refactoring: fix logic bug (`break` outside `if`), fix 6 memory leaks, simplify 46-line if-chain to single formula `y-2x+9`, fix static variable shadowing |
