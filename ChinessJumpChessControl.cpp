@@ -62,6 +62,7 @@ bool ChinessJumpChessControl::ProbableJumpPathALLShow(Point source,int Map_i,int
                     printf("\n");
 
                 }
+            delete p;
             }
             //draw circle
 
@@ -274,16 +275,18 @@ map<string,list<CircleReturn>> * ChinessJumpChessControl::FindPathList(int Map_i
                             }
                         }
 
-                        static int i=1000;
-                        i++;
+                        static int seq_id = 1000;
+                        seq_id++;
                         listnode->push_back(*p0);
                         stringstream tempstr;
                         tempstr << stringid_make.str();
-                        tempstr <<  "["<<i <<"]";
+                        tempstr <<  "["<<seq_id <<"]";
                         string t = tempstr.str();
                         result_map->insert(pair<string, list<CircleReturn>>(t, *listnode));
                     }
+                    delete listnode;
                 }
+                delete rec;
             }//if
 
 

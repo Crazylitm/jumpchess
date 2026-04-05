@@ -679,9 +679,12 @@ void CheckersUI::initMapList() {
                         }
                     }
             }
+        delete p_neighbourNode;
         }
+        delete node;
 
         MapChessControlMemory.insert(pair<int,list<CircleReturn>>(i,*listnode));
+        delete listnode;
         //printf("-------[%d]\n",i);
     }
     printChessMap();

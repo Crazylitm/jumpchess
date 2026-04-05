@@ -27,50 +27,7 @@ int CheckersMapLimitCheck::getDistanceFromRED_5_1_point_X(int x, int y) {
     if(x <1 || x > MAX_X) return  0;
     if(y <1 || y > MAX_Y) return  0;
     if(IsLegalPosition(x,y) == false)return 0;
-    if(x == 13 && y == 5) return -12;
-    if(x == 13 && y == 6) return -11;
-    if(x == 12 && y == 5) return -10;
-    if(x == 13 && y == 7) return -10;
-    if(x == 12 && y == 6) return -9;
-    if(x == 13 && y == 8) return -9;
-    if(x == 11 && y == 5) return -8;
-    if(x == 12 && y == 7) return -8;
-    if(x == 13 && y == 9) return -8;
-    if(x == 11 && y == 6) return -7;
-    if(x == 12 && y == 8) return -7;
-    if(x == 10 && y == 5) return -6;
-    if(x == 11 && y == 7) return -6;
-
-    if(x == 1 && y == 5) return 12;
-    if(x == 2 && y == 6) return 11;
-    if(x == 2 && y == 5) return 10;
-    if(x == 3 && y == 7) return 10;
-    if(x == 3 && y == 6) return 9;
-    if(x == 4 && y == 8) return 9;
-    if(x == 3 && y == 5) return 8;
-    if(x == 4 && y == 7) return 8;
-    if(x == 5 && y == 9) return 8;
-    if(x == 4 && y == 6) return 7;
-    if(x == 5 && y == 8) return 7;
-    if(x == 4 && y == 5) return 6;
-    if(x == 5 && y == 7) return 6;
-
-    if(x == 5) return  y - 1;
-    if(x == 6) return  (y-2) - 1 ;
-    if(x == 7) return  (y-3) - 2 ;
-    if(x == 8) return  (y-4) - 3 ;
-    if(x == 9) return  (y-5) - 4 ;
-    if(x == 10) return (y-6) - 5 ;
-    if(x == 11) return (y-7) - 6 ;
-    if(x == 12) return (y-8) - 7 ;
-    if(x == 13) return (y-9) - 8 ;
-    if(x == 14) return (y-10)- 9 ;
-    if(x == 15) return (y-11)- 10;
-    if(x == 16) return (y-12)- 11;
-    if(x == 17) return (y-13)- 12;
-
-    return 0;
-
+    return y - 2*x + 9;
 }
 ChessColor CheckersMapLimitCheck::getCircleColor(int x, int y) {
     return getChessColor(x,y);
@@ -161,9 +118,10 @@ int CheckersMapLimitCheck::getCircleMapPostion(int x, int y) {
     int iResult=-2;
     for(int i=0; i < MAX_CHESS;i++){
         if(CircleMap[i][0] == x &&
-           CircleMap[i][1] == y)
+           CircleMap[i][1] == y) {
             iResult = i;
             break;
+        }
     }
     return iResult;
 }
