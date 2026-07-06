@@ -3,6 +3,36 @@
 //
 
 #include "SaveData2INIFile.h"
+#include <cstdlib>
+
+// The ini file is external input: values must be range-checked before they are
+// used as CircleMap indexes / board coordinates. strtol instead of atoi so
+// non-numeric and overflowing text is rejected instead of silently truncated.
+static bool parseBoundedInt(const string &s, long minv, long maxv, int *out) {
+    char *end = nullptr;
+    long v = strtol(s.c_str(), &end, 10);
+    if (end == s.c_str() || v < minv || v > maxv) {
+        return false;
+    }
+    *out = (int)v;
+    return true;
+}
+
+static bool parseDetectRecord(const string &index_s, const string &x_s, const string &y_s,
+                              const string &point_x_s, const string &point_y_s,
+                              const string &radius_s, SaveDetectResultInfo *out) {
+    int idx, x, y, px, py, radius;
+    if (!parseBoundedInt(index_s, 0, MAX_CHESS - 1, &idx) ||
+        !parseBoundedInt(x_s, 0, 32, &x) ||
+        !parseBoundedInt(y_s, 0, 32, &y) ||
+        !parseBoundedInt(point_x_s, -100000, 100000, &px) ||
+        !parseBoundedInt(point_y_s, -100000, 100000, &py) ||
+        !parseBoundedInt(radius_s, 0, 100000, &radius)) {
+        return false;
+    }
+    *out = SaveDetectResultInfo(idx, x, y, Point(px, py), radius);
+    return true;
+}
 
 void SaveData2INIFile::SaveiniFile(vector<SaveDetectResultInfo> &saveRet) {
     vector<SaveDetectResultInfo>::iterator iter;
@@ -77,8 +107,11 @@ int SaveData2INIFile::GetiniFile(vector<SaveDetectResultInfo> &saveRet) {
             return -1;
         }
 
-        SaveDetectResultInfo info(atoi(index_s.c_str()),atoi(x_s.c_str()),atoi(y_s.c_str()),
-                                  Point(atoi(point_x_s.c_str()),atoi(point_y_s.c_str())),atoi(radius_s.c_str()));
+        SaveDetectResultInfo info;
+        if(!parseDetectRecord(index_s,x_s,y_s,point_x_s,point_y_s,radius_s,&info)){
+            cout << "skip invalid record in ini section [" << section << "]" << endl;
+            continue;
+        }
         saveRet.push_back(info);
     }
     return 0 ;
@@ -131,8 +164,11 @@ int SaveData2INIFile::GetiniFile(string filename, vector<SaveDetectResultInfo> &
             return -1;
         }
 
-        SaveDetectResultInfo info(atoi(index_s.c_str()),atoi(x_s.c_str()),atoi(y_s.c_str()),
-                                  Point(atoi(point_x_s.c_str()),atoi(point_y_s.c_str())),atoi(radius_s.c_str()));
+        SaveDetectResultInfo info;
+        if(!parseDetectRecord(index_s,x_s,y_s,point_x_s,point_y_s,radius_s,&info)){
+            cout << "skip invalid record in ini section [" << section << "]" << endl;
+            continue;
+        }
         saveRet.push_back(info);
     }
     return 0 ;

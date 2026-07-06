@@ -332,7 +332,7 @@ void CheckersUI::UpdateChessBoard() {
         if(checker.IsLegalPosition(nx,ny)){
             Point np = getMapXY(nx,ny);
             char ntext[20];
-            sprintf(ntext,"%d",ni);
+            snprintf(ntext,sizeof(ntext),"%d",ni);
             putText(chessmapmat,ntext,Point(np.x-10,np.y+2),1,1,Scalar(0,0,0));
         }
     }
@@ -360,7 +360,7 @@ void CheckersUI::InitChess() {
 
         {//for debug
             char text[20];
-            sprintf(text,"%d",i);
+            snprintf(text,sizeof(text),"%d",i);
             putText(chessmapmat,text,Point(p.x-10,p.y+2),1,1,Scalar(0,0,0));
         }
     }
@@ -513,9 +513,9 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
                 // 重绘数字：出发位置显示棋盘编号，目的位置在棋子图像上方显示编号
                 {
                     char ntext[20];
-                    sprintf(ntext,"%d",old_cur_i);
+                    snprintf(ntext,sizeof(ntext),"%d",old_cur_i);
                     putText(chessmapmat,ntext,Point(oneMouseDownPose.x-10,oneMouseDownPose.y+2),1,1,Scalar(0,0,0));
-                    sprintf(ntext,"%d",cur_i);
+                    snprintf(ntext,sizeof(ntext),"%d",cur_i);
                     putText(chessmapmat,ntext,Point(curChessPoint.x-10,curChessPoint.y+2),1,1,Scalar(0,0,0));
                 }
                 imshow(WINDOW_NAME_CHESS, chessmapmat);//刷新以下
@@ -547,7 +547,7 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
     }
 }
 void CheckersUI::updateCircleMap(int CircleMap_i,Point p, ChessColor color) {
-    if(CircleMap_i<0 || CircleMap_i>MAX_CHESS){
+    if(CircleMap_i<0 || CircleMap_i>=MAX_CHESS){
         return;
     }
     checker.CircleMap[CircleMap_i][2]= color;

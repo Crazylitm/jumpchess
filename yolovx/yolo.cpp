@@ -118,6 +118,12 @@ void Yolo::drawPred(Mat& img, vector<Output> result, vector<Scalar> color, int i
     int iB=0,iG=0,iO=0,iR=0,iR2=0,iW=0,iOther=0,iN=0;
 
     for (int i = 0; i < (int)result.size(); i++) {
+        // guard: id indexes both className and color; a model/iType mismatch
+        // must not read out of bounds
+        if (result[i].id < 0 || result[i].id >= (int)className.size()
+            || result[i].id >= (int)color.size()) {
+            continue;
+        }
         int left = result[i].box.x;
         int top  = result[i].box.y;
 
@@ -160,6 +166,7 @@ void Yolo::drawPred(Mat& img, vector<Output> result, vector<Scalar> color, int i
     // 汇总计数
     int ty = 100;
     auto put_summary = [&](const string& s, int classId){
+        if (classId < 0 || classId >= (int)color.size()) return;
         putText(img, s, Point(20, ty), FONT_HERSHEY_SIMPLEX, 0.5, color[classId], 2);
         ty += 20;
     };

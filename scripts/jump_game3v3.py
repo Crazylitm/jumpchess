@@ -10,7 +10,13 @@ AI 修复:
   - 全局状态历史反振荡保留
 """
 
-import subprocess, time
+import subprocess, time, os
+
+# Helper Swift files live in the repo, not /tmp: a fixed world-writable /tmp
+# path could be replaced by any local process and executed with our privileges.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CLK_SWIFT = os.path.join(SCRIPT_DIR, 'clk.swift')
+ACTIVATE_SWIFT = os.path.join(SCRIPT_DIR, 'activate_jump0.swift')
 
 # ── Coordinate system ──────────────────────────────────────────────────
 BEGX, BEGY    = 600, 30
@@ -39,7 +45,7 @@ def board_to_screen(bx, by):
     return WIN_X+px, WIN_Y+py
 
 def click(x, y):
-    subprocess.run(['swift', '/tmp/clk.swift', str(x), str(y)], capture_output=True)
+    subprocess.run(['swift', CLK_SWIFT, str(x), str(y)], capture_output=True)
     time.sleep(0.38)
 
 def move_cursor(x1, y1, x2, y2):
@@ -282,7 +288,7 @@ def main():
         subprocess.Popen(['./jump0'], cwd='/Users/mike/claude-work/jumpchess/build',
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         time.sleep(4)
-        subprocess.run(['swift', '/tmp/activate_jump0.swift'], capture_output=True)
+        subprocess.run(['swift', ACTIVATE_SWIFT], capture_output=True)
         time.sleep(0.5)
 
     print("""

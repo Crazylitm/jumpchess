@@ -3,7 +3,12 @@
 2-player Chinese Checkers: RED (top) vs ORANGE (bottom)
 Drives jump0 via CGEvent mouse clicks.
 """
-import subprocess, time, sys
+import subprocess, time, sys, os
+
+# Helper Swift files live in the repo, not /tmp: a fixed world-writable /tmp
+# path could be replaced by any local process and executed with our privileges.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CLK_SWIFT = os.path.join(SCRIPT_DIR, 'clk.swift')
 
 # ── Coordinate system ──────────────────────────────────────────────────
 BEGX, BEGY   = 600, 30
@@ -36,7 +41,7 @@ def board_to_screen(bx, by):
     return WIN_X + px, WIN_Y + py
 
 def click(sx, sy, label=""):
-    subprocess.run(['swift', '/tmp/clk.swift', str(sx), str(sy)],
+    subprocess.run(['swift', CLK_SWIFT, str(sx), str(sy)],
                    capture_output=True)
     print(f"    🖱  click ({sx},{sy}) {label}")
     time.sleep(0.5)

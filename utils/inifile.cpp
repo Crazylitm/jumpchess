@@ -382,6 +382,7 @@ namespace inifile
 
         err = getValue(section, key, &strValue);
 
+        *value = false;  // don't leave output uninitialized on unrecognized input
         if (StringCmpIgnoreCase(strValue, "true") || StringCmpIgnoreCase(strValue, "1")) {
             *value = true;
         } else if (StringCmpIgnoreCase(strValue, "false") || StringCmpIgnoreCase(strValue, "0")) {
@@ -846,7 +847,9 @@ namespace inifile
 
         int i = 0;
 
-        while ((i < len) && isspace(str[i]) && (str[i] != '\0')) {
+        // cast to unsigned char: isspace() is undefined for negative char
+        // values (e.g. UTF-8 multibyte content in the ini file)
+        while ((i < len) && isspace((unsigned char)str[i]) && (str[i] != '\0')) {
             i++;
         }
 
@@ -857,7 +860,7 @@ namespace inifile
         len = str.length();
 
         for (i = len - 1; i >= 0; --i) {
-            if (!isspace(str[i])) {
+            if (!isspace((unsigned char)str[i])) {
                 break;
             }
         }

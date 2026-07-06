@@ -12,7 +12,7 @@ bool ChinessJumpChessControl::CanJumpFun(Point source, Point dest) {
 }
 bool ChinessJumpChessControl::ProbableJumpPathALLShow(Point source,int Map_i,int Type,list<Point> *p_get) {
     //ui->checker.CircleMap[][]
-    if(Map_i<0 || Map_i>MAX_CHESS)return false;
+    if(Map_i<0 || Map_i>=MAX_CHESS)return false;
     static Mat old_chessmapmat;
     int map_x=0,map_y=0;
     ChessColor chess;

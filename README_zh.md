@@ -205,6 +205,37 @@ bash scripts/export_yolo11.sh
 
 ---
 
+## 安全审计与修复（2026.07）
+
+对 C++/Python/Swift 全部代码做了一次安全扫描，共发现并修复 8 处问题，全部通过重新编译 + 回归测试验证。
+
+### 高危
+
+| # | 问题 | CWE | 位置 | 修复 |
+|---|------|-----|------|------|
+| 1 | **越界写入**：边界检查写成 `CircleMap_i > MAX_CHESS`，索引 121 可写入 `CircleMap[121]` | CWE-787 | `CheckersUI.cpp` `updateCircleMap()` | 改为 `>= MAX_CHESS` |
+| 2 | **越界读取**：同样的 off-by-one | CWE-125 | `ChinessJumpChessControl.cpp` `ProbableJumpPathALLShow()` | 改为 `>= MAX_CHESS` |
+| 3 | 不安全的固定 `/tmp` 路径**代码执行**：脚本执行 `/tmp/clk.swift` 和 `/tmp/activate_jump0.swift`，任何本地进程都可在此植入代码并以用户权限执行 | CWE-377 | `scripts/jump_game*.py` | Swift 辅助文件移入仓库（`scripts/clk.swift`、`scripts/activate_jump0.swift`），按脚本自身目录定位 |
+
+### 中危
+
+| # | 问题 | CWE | 位置 | 修复 |
+|---|------|-----|------|------|
+| 4 | ini 外部输入未校验：`atoi` 出的 `index`/坐标直接流入 `CircleMap` 索引 | CWE-20 | `utils/SaveData2INIFile.cpp` | 改用 `strtol` + 范围校验（`index ∈ [0, MAX_CHESS)`），非法记录跳过 |
+| 5 | 未定义行为：ini 含 UTF-8/中文时 `isspace(char)` 收到负值 | UB | `utils/inifile.cpp` `trim()` | 转换为 `unsigned char` |
+
+### 低危 / 加固
+
+| # | 问题 | 位置 | 修复 |
+|---|------|------|------|
+| 6 | `sprintf` 写固定缓冲区（当前安全，防御性加固） | `CheckersUI.cpp` ×4 | 改用 `snprintf` |
+| 7 | 模型输出的类别 id 无边界检查直接索引 `color[]`/`className[]` | `yolovx/yolo.cpp` `drawPred()` | 增加边界守卫 |
+| 8 | `GetBoolValue` 输入无法识别时输出未初始化（CWE-457） | `utils/inifile.cpp` | 默认置 `false` |
+
+**验证：** 完整重新编译通过；回归测试确认恶意 ini 记录（index 为 `999999`、`-3`、`abc`）全部被拒、合法记录正常加载；含中文/UTF-8 的 ini 解析不崩溃；全部 Python 脚本 `py_compile` 通过；Swift 辅助文件语法检查通过；`jump0` 启动冒烟测试正常。
+
+---
+
 ## 代码审查与重构（2026.04）
 
 对全项目代码进行了质量扫描（屎山指数 1-10，越高越差），综合评分 **7.2 / 10**，完成以下修复。
@@ -465,3 +496,4 @@ A: 确认 `yolovx/yolo.h` 和 `yolovx/yolo.cpp` 是最新版（YOLO11n 格式，
 | 2023.03.11 | 完成摄像头识别棋盘第二阶段目标 |
 | 2026.03.31 | 修复棋子编号渲染 Bug；升级 YOLO11n（mAP50=99.4%）；增加 AI 自动对弈脚本（2人/3v3） |
 | 2026.04.05 | 代码审查与重构：修复 `break` 位置逻辑 bug、修复 6 处内存泄漏、46 行 if 链简化为公式 `y-2x+9`、修复 static 变量遮蔽问题 |
+| 2026.07.05 | 安全审计：修复越界读写（`MAX_CHESS` off-by-one）、移除 AI 脚本不安全的 `/tmp` 代码执行路径、ini 输入校验、修复 UTF-8 下 `isspace` 未定义行为、`sprintf`→`snprintf` 及 YOLO 类别索引加固 |

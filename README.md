@@ -205,6 +205,37 @@ bash scripts/export_yolo11.sh
 
 ---
 
+## Security Audit & Fixes — 2026.07
+
+A full security scan of the C++/Python/Swift codebase was performed. 8 issues were found and fixed, all verified by rebuild + regression tests.
+
+### High Severity
+
+| # | Issue | CWE | Location | Fix |
+|---|-------|-----|----------|-----|
+| 1 | Out-of-bounds **write**: boundary check `CircleMap_i > MAX_CHESS` allows index 121 into `CircleMap[121]` | CWE-787 | `CheckersUI.cpp` `updateCircleMap()` | `>=` MAX_CHESS |
+| 2 | Out-of-bounds **read**: same off-by-one | CWE-125 | `ChinessJumpChessControl.cpp` `ProbableJumpPathALLShow()` | `>=` MAX_CHESS |
+| 3 | Insecure fixed `/tmp` path **code execution**: scripts executed `/tmp/clk.swift` & `/tmp/activate_jump0.swift` — any local process could plant code there and have it run with the user's privileges | CWE-377 | `scripts/jump_game*.py` | Swift helpers moved into repo (`scripts/clk.swift`, `scripts/activate_jump0.swift`), resolved relative to script location |
+
+### Medium Severity
+
+| # | Issue | CWE | Location | Fix |
+|---|-------|-----|----------|-----|
+| 4 | Unvalidated ini input: `atoi`'d `index`/coords flow into `CircleMap` indexing | CWE-20 | `utils/SaveData2INIFile.cpp` | `strtol` + range validation (`index ∈ [0, MAX_CHESS)`); invalid records skipped |
+| 5 | Undefined behavior: `isspace(char)` with negative values on UTF-8 ini content | UB | `utils/inifile.cpp` `trim()` | cast to `unsigned char` |
+
+### Low Severity / Hardening
+
+| # | Issue | Location | Fix |
+|---|-------|----------|-----|
+| 6 | `sprintf` into fixed buffers (safe today, hardened) | `CheckersUI.cpp` ×4 | `snprintf` |
+| 7 | Class id from model output indexes `color[]`/`className[]` unchecked | `yolovx/yolo.cpp` `drawPred()` | bounds guard |
+| 8 | `GetBoolValue` leaves output uninitialized on unrecognized input (CWE-457) | `utils/inifile.cpp` | default to `false` |
+
+**Verification:** full rebuild passes; regression test confirms malicious ini records (index `999999`, `-3`, `abc`) are rejected while valid records load; UTF-8/Chinese ini content parses without crash; all Python scripts `py_compile` clean; Swift helpers parse-checked; `jump0` smoke-tested.
+
+---
+
 ## Code Review & Refactoring — 2026.04
 
 A full codebase quality scan was performed (scored 1–10, higher = worse). Overall project score: **7.2 / 10**. The following issues were identified and fixed.
@@ -461,3 +492,4 @@ A: Confirm `yolovx/yolo.h` and `yolo.cpp` are the latest YOLO11n version (no `ne
 | 2023.03.11 | Phase 2 complete: camera-based board recognition |
 | 2026.03.31 | Fix piece-number rendering bug; upgrade YOLO11n (mAP50=99.4%); add AI auto-play scripts (2P & 3v3) |
 | 2026.04.05 | Code review & refactoring: fix logic bug (`break` outside `if`), fix 6 memory leaks, simplify 46-line if-chain to single formula `y-2x+9`, fix static variable shadowing |
+| 2026.07.05 | Security audit: fix OOB write/read (off-by-one on `MAX_CHESS`), remove insecure `/tmp` code-execution path in AI scripts, validate ini input, fix `isspace` UB on UTF-8, harden `sprintf`→`snprintf` and YOLO class-id indexing |
