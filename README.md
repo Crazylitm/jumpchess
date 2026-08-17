@@ -37,14 +37,13 @@ Contact: DingTalk **simomo** &nbsp;|&nbsp; WeChat **crazylitm** &nbsp;|&nbsp; Em
 
 ```
 jumpchess/
-├── jump.cpp / jump.h           # Main entry, OpenCV window event loop
+├── jump.cpp                    # Main entry, OpenCV window event loop
 ├── CheckersUI.cpp / .h         # Board UI core: draw, mouse events, piece movement
 ├── CheckersMapLimitCheck.cpp   # Coordinate validation, hex distance calculation
 ├── ChinessJumpChessControl.cpp # Game rule engine: valid jump path calculation (BFS)
 ├── ChessCamera.cpp / .h        # Camera capture + YOLO inference integration
 ├── FrameProcessor/             # Image processing: background segmentation, detection
 │   ├── BGFGSegmentor           # Background/foreground segmentation
-│   ├── Chessboardinfo          # Board state management
 │   └── Camera_OutPut_UI        # Camera output UI
 ├── yolovx/
 │   ├── yolo.h                  # YOLO inference interface (upgraded to YOLO11n)
@@ -53,6 +52,8 @@ jumpchess/
 │   ├── best.onnx               # Active model: YOLO11n (mAP50 = 99.4%)
 │   └── best_yolov5_backup.onnx # Legacy YOLOv5n backup
 ├── scripts/
+│   ├── jump_common.py          # Shared: board constants / coordinate math / mouse control (precompiled Swift helper)
+│   ├── jumpctl.swift           # Swift mouse-control helper source (click/move/activate)
 │   ├── jump_game2.py           # 2-player AI simulation (RED vs ORANGE)
 │   ├── jump_game3v3.py         # 3v3 team AI match (fixed oscillation)
 │   ├── jump_game.py            # 2-player AI v1
@@ -483,6 +484,51 @@ A: Confirm `yolovx/yolo.h` and `yolo.cpp` are the latest YOLO11n version (no `ne
 
 ---
 
+## Code Cleanup & Refactoring — 2026.08.17
+
+Another cleanup/refactor pass on top of the 2026.04 refactor and 2026.07 security audit. All changes verified by a full rebuild (`cmake --build build`).
+
+### Correctness fixes
+
+| # | Issue | Location | Fix |
+|---|-------|----------|-----|
+| 1 | Move legality never validated: `CanJumpFun()` always returned `true`, so a second click on any empty cell teleported the piece | `ChinessJumpChessControl.cpp` / `CheckersUI.cpp` | Removed the stub; added `isLegalMoveTarget()` so the destination must be in the selected piece's computed legal-move set |
+| 2 | `getChessCircle()` used `||` instead of `&&`, returning the wrong object on a single-coordinate match | `jump.h` (deleted) | Removed with dead code |
+| 3 | `gethonecomb(int)` / `getTriangleCircle(ChessColor)` bounds used `>` causing off-by-one OOB | `jump.h` (deleted) | Removed with dead code |
+
+### Dead code removed
+
+- Removed the entire legacy board-adjacency system `Chess` / `ChessCircle` / `CheckersHoneycomb` / `CheckersTriangle` / `ChessContestContext` / `CheckersMap`, and the whole `jump.h` file (`jump.cpp` now only contains `main()`). The real move engine always used the `ChessNode` graph + `CircleMap`; this `ChessCircle` graph's `setChessNextCircle()` was an empty stub and never ran.
+- Removed the half-finished `ChinessJumpChessControl::FindPathList(int, map&)` overload (with its `Map_id`/`id` mixup), `getCircleMapPostion()`, and orphaned `main.cpp`/`main1.cpp`/`main3.cpp`/`main4.cpp`/`main2.txt` (no longer compiled).
+
+### Memory leaks
+
+| Location | Leak | Fix |
+|----------|------|-----|
+| `CheckersUI` | `ChessNode` adjacency graph never freed | `~CheckersUI()` walks the shared graph with a `visited` set and deletes each node once |
+| `CheckersMap` | `context` `delete` was commented out | Removed together with `CheckersMap` |
+
+### Header `static` singletons
+
+Removed the header-level `static CheckersMapLimitCheck chesschecker;` and `static CheckersMapLimitCheck_include_version chesschecker_inner;` — each including TU got its own (heavily-constructed) copy.
+
+### YOLO module
+
+- `Yolo::Detect()` now calls `output.clear()` first, so reusing the result vector can't accumulate stale boxes.
+- Removed `net_no_ches`: it loaded the *same* 6-class `best.onnx` but parsed it as 1 class (`className_no_chess={"N"}`), so the reshape would throw — an unfinished feature. Empty-cell detection still needs a dedicated "empty" model or geometric board registration (TODO).
+
+### Python AI script performance
+
+- Added `scripts/jumpctl.swift` (click/move/activate) and `scripts/jump_common.py` (constants, the `y-2x+9` formula, precompiled Swift helper).
+- All 4 scripts now use `jump_common`: `move_cursor` used to run `swift -e` (compiling inline) and `click` ran `swift clk.swift` every move; now the helper is `swiftc`-compiled once and exec'd directly, removing the bottleneck behind the 549-move / 13m37s 3v3 match.
+- Removed the hardcoded `/Users/mike/claude-work/jumpchess/build` path (now derived from `jump_common.BUILD_DIR`).
+
+### Debug output cleanup
+
+Removed the per-selection full path-graph `printf` in `ProbableJumpPathALLShow()`, the startup adjacency dump from `printChessMap()`/`printNode()`, `printf("debug")`, `printf("initMouseParam")`, `cout<<"find 1"`, etc.
+
+---
+
 ## Development Log
 
 | Date | Milestone |
@@ -493,3 +539,4 @@ A: Confirm `yolovx/yolo.h` and `yolo.cpp` are the latest YOLO11n version (no `ne
 | 2026.03.31 | Fix piece-number rendering bug; upgrade YOLO11n (mAP50=99.4%); add AI auto-play scripts (2P & 3v3) |
 | 2026.04.05 | Code review & refactoring: fix logic bug (`break` outside `if`), fix 6 memory leaks, simplify 46-line if-chain to single formula `y-2x+9`, fix static variable shadowing |
 | 2026.07.05 | Security audit: fix OOB write/read (off-by-one on `MAX_CHESS`), remove insecure `/tmp` code-execution path in AI scripts, validate ini input, fix `isspace` UB on UTF-8, harden `sprintf`→`snprintf` and YOLO class-id indexing |
+| 2026.08.17 | Cleanup & refactor: fix move-legality validation, remove legacy board dead code, fix ChessNode graph leak, remove header `static` singletons, fix YOLO `net_no_ches`, speed up Python scripts with a precompiled Swift helper |

@@ -56,7 +56,6 @@ class BGFGSegmentor : public FrameProcessor,UI{
      //add Yolo
      Yolo test;
      Net net;
-     Net net_no_ches;
      vector<Scalar> color;
 
      //add 2023.2.5
@@ -84,14 +83,6 @@ public:
          else {
              cout << "WARNING: Could not load " << model_path << " — detection disabled" << endl;
              // Do NOT early-return; allow full initialization so color[] is populated
-         }
-         string model_path_detect_no_chess = "../models/best.onnx";
-         if (test.readModel(net_no_ches, model_path_detect_no_chess, false)) {
-             cout << "read net (no-chess) ok!" << endl;
-         }
-         else {
-             cout << "WARNING: Could not load " << model_path_detect_no_chess << " — detection disabled" << endl;
-             // Do NOT early-return
          }
          color.push_back((Scalar(255,118,20)));//Blue
          color.push_back((Scalar(68,163,16)));//Green

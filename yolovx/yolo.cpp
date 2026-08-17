@@ -31,6 +31,8 @@ bool Yolo::Detect(Mat& SrcImg, Net& net, vector<Output>& output, int iType) {
     else                 className = className_jump_chess;
     int nc = (int)className.size();
 
+    output.clear();  // 防止调用方复用容器时结果累积
+
     int col = SrcImg.cols;
     int row = SrcImg.rows;
     int maxLen = MAX(col, row);

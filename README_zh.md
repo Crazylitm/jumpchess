@@ -37,14 +37,13 @@
 
 ```
 jumpchess/
-├── jump.cpp / jump.h          # 主程序入口，OpenCV 窗口事件循环
+├── jump.cpp                   # 主程序入口，OpenCV 窗口事件循环
 ├── CheckersUI.cpp / .h        # 棋盘 UI 核心：绘制、鼠标响应、棋子移动
 ├── CheckersMapLimitCheck.cpp  # 坐标合法性检查、六边形距离计算
 ├── ChinessJumpChessControl.cpp# 跳棋规则引擎：合法跳跃路径计算（BFS）
 ├── ChessCamera.cpp / .h       # 摄像头采集与 YOLO 识别联动
 ├── FrameProcessor/            # 图像处理：背景分割、棋子检测
 │   ├── BGFGSegmentor          # 背景前景分割
-│   ├── Chessboardinfo         # 棋盘信息管理
 │   └── Camera_OutPut_UI       # 摄像头输出 UI
 ├── yolovx/
 │   ├── yolo.h                 # YOLO 推理接口（已升级为 YOLO11n）
@@ -53,6 +52,8 @@ jumpchess/
 │   ├── best.onnx              # 当前生效模型：YOLO11n（mAP50=99.4%）
 │   └── best_yolov5_backup.onnx# 旧 YOLOv5n 模型备份
 ├── scripts/
+│   ├── jump_common.py         # 共享：棋盘常量/坐标换算/鼠标控制（预编译 Swift 助手）
+│   ├── jumpctl.swift          # Swift 鼠标控制助手源码（click/move/activate）
 │   ├── jump_game2.py          # 2人 AI 对弈（RED vs ORANGE）
 │   ├── jump_game3v3.py        # 3v3 团队对弈（修复振荡版）
 │   ├── jump_game.py           # 2人对弈 v1
@@ -487,6 +488,51 @@ A: 确认 `yolovx/yolo.h` 和 `yolovx/yolo.cpp` 是最新版（YOLO11n 格式，
 
 ---
 
+## 代码清理与重构 — 2026.08.17
+
+在 2026.04 重构与 2026.07 安全审计基础上，又完成一轮"去死代码 + 修 bug + 性能优化"，全部改动重新编译通过（`cmake --build build`）。
+
+### 正确性修复
+
+| # | 问题 | 位置 | 修复 |
+|---|------|------|------|
+| 1 | 落子合法性未校验：`CanJumpFun()` 恒返回 `true`，第二次点击任意空格都会瞬移棋子 | `ChinessJumpChessControl.cpp` / `CheckersUI.cpp` | 删除空实现，新增 `isLegalMoveTarget()`：目标必须落在选中棋子本次算出的合法落点集合内 |
+| 2 | `getChessCircle()` 用 `||` 而非 `&&`，仅单坐标匹配就返回错误对象 | `jump.h`（已删除） | 随死代码一并移除 |
+| 3 | `gethonecomb(int)` / `getTriangleCircle(ChessColor)` 边界用 `>` 导致 off-by-one 越界 | `jump.h`（已删除） | 随死代码一并移除 |
+
+### 死代码删除
+
+- 删除整条旧棋盘邻接体系 `Chess` / `ChessCircle` / `CheckersHoneycomb` / `CheckersTriangle` / `ChessContestContext` / `CheckersMap`，以及 `jump.h` 整个文件（`jump.cpp` 现在只保留 `main()`）。真正的走棋路径一直用的是 `ChessNode` 图 + `CircleMap`，这套 `ChessCircle` 邻接图的 `setChessNextCircle()` 是空实现、从未生效。
+- 删除 `ChinessJumpChessControl::FindPathList(int, map&)` 半成品重载（含 `Map_id`/`id` 混淆 bug）、`getCircleMapPostion()`、孤立入口 `main.cpp`/`main1.cpp`/`main3.cpp`/`main4.cpp`/`main2.txt`（不再编译）。
+
+### 内存泄漏
+
+| 位置 | 泄漏 | 修复 |
+|------|------|------|
+| `CheckersUI` | `ChessNode` 邻接图从不释放 | `~CheckersUI()` 用 visited 集合去重遍历整张共享图并逐个 `delete` |
+| `CheckersMap` | `context` 的 `delete` 被注释 | 随 `CheckersMap` 删除 |
+
+### 头文件 static 单例
+
+移除头文件里的 `static CheckersMapLimitCheck chesschecker;` 与 `static CheckersMapLimitCheck_include_version chesschecker_inner;`（每个包含该头文件的翻译单元都会各自实例化一份，且构造较重），彻底消除重复初始化。
+
+### YOLO 模块
+
+- `Yolo::Detect()` 开头 `output.clear()`，防止调用方复用容器导致结果累积。
+- 删除 `net_no_ches`：它加载的是同一个 6 类 `best.onnx`，却按 1 类（`className_no_chess={"N"}`）解析，reshape 形状不匹配会抛异常，属未完成功能。空格识别仍需专用"空位"模型或棋盘几何配准（后续 TODO）。
+
+### Python 对弈脚本性能
+
+- 新增 `scripts/jumpctl.swift`（click/move/activate 三合一）与 `scripts/jump_common.py`（常量、坐标公式 `y-2x+9`、预编译 Swift 助手）。
+- 4 个脚本统一改用 `jump_common`：原 `move_cursor` 每次落子用 `swift -e` 现场编译、`click` 每次 `swift clk.swift`，现改为 `swiftc` 编译一次二进制后直接 exec，消除了 3v3 跑 549 手要 13 分 37 秒的性能瓶颈。
+- 移除脚本里硬编码的 `/Users/mike/claude-work/jumpchess/build` 路径（改由 `jump_common.BUILD_DIR` 推导）。
+
+### 调试输出清理
+
+删除 `ProbableJumpPathALLShow()` 每次选中棋子时打印整张路径图的 printf、`printChessMap()`/`printNode()` 启动时的全量邻接表 dump、`printf("debug")`、`printf("initMouseParam")`、`cout<<"find 1"` 等调试输出。
+
+---
+
 ## 开发日志
 
 | 日期 | 内容 |
@@ -497,3 +543,4 @@ A: 确认 `yolovx/yolo.h` 和 `yolovx/yolo.cpp` 是最新版（YOLO11n 格式，
 | 2026.03.31 | 修复棋子编号渲染 Bug；升级 YOLO11n（mAP50=99.4%）；增加 AI 自动对弈脚本（2人/3v3） |
 | 2026.04.05 | 代码审查与重构：修复 `break` 位置逻辑 bug、修复 6 处内存泄漏、46 行 if 链简化为公式 `y-2x+9`、修复 static 变量遮蔽问题 |
 | 2026.07.05 | 安全审计：修复越界读写（`MAX_CHESS` off-by-one）、移除 AI 脚本不安全的 `/tmp` 代码执行路径、ini 输入校验、修复 UTF-8 下 `isspace` 未定义行为、`sprintf`→`snprintf` 及 YOLO 类别索引加固 |
+| 2026.08.17 | 代码清理与重构：修复落子合法性校验、删除旧棋盘死代码体系、修复 ChessNode 图泄漏、移除头文件 static 单例、修 YOLO net_no_ches、Python 脚本改用预编译 Swift 助手提速 |

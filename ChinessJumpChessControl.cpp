@@ -7,9 +7,6 @@
 void ChinessJumpChessControl::init(ChessNode *p) {
     head = p;
 }
-bool ChinessJumpChessControl::CanJumpFun(Point source, Point dest) {
-    return true;
-}
 bool ChinessJumpChessControl::ProbableJumpPathALLShow(Point source,int Map_i,int Type,list<Point> *p_get) {
     //ui->checker.CircleMap[][]
     if(Map_i<0 || Map_i>=MAX_CHESS)return false;
@@ -27,42 +24,14 @@ bool ChinessJumpChessControl::ProbableJumpPathALLShow(Point source,int Map_i,int
             if(p != nullptr){
                 map<string, list<CircleReturn>>::iterator iter_map;
                 for(iter_map = p->begin();iter_map != p->end();iter_map++){
-                    list<CircleReturn>  chess_list;
+                    list<CircleReturn>  chess_list = iter_map->second;
                     list<CircleReturn>::iterator iter_list;
-                    chess_list = iter_map->second;
-                    string map_id = iter_map->first;
-                    printf("{%s}---",map_id.c_str());
                     for(iter_list = chess_list.begin();iter_list != chess_list.end();iter_list++) {
                         CircleReturn node = *iter_list;
                         p_get->push_back(Point(node.Map_x,node.Map_y));
-                        switch (node.nextType){
-                            case TLEFT:
-                                printf("->[%d-(%d,%d)-Top-Left]",node.CircleMap_i,node.Map_x,node.Map_y);
-                                break;
-                            case TRIGHT:
-                                printf("->[%d-(%d,%d)-Top-Right]",node.CircleMap_i,node.Map_x,node.Map_y);
-                                break;
-                            case MLEFT:
-                                printf("->[%d-(%d,%d)-Middle-Left]",node.CircleMap_i,node.Map_x,node.Map_y);
-                                break;
-                            case MRIGHT:
-                                printf("->[%d-(%d,%d)-Middle-Right]",node.CircleMap_i,node.Map_x,node.Map_y);
-                                break;
-                            case DLEFT:
-                                printf("->[%d-(%d,%d)-Down-Left]",node.CircleMap_i,node.Map_x,node.Map_y);
-                                break;
-                            case DRIGHT:
-                                printf("->[%d-(%d,%d)-Down-Right]",node.CircleMap_i,node.Map_x,node.Map_y);
-                                break;
-                            default:
-                                printf("->[%d-(%d,%d)-Self]",node.CircleMap_i,node.Map_x,node.Map_y);
-                                break;
-                        }
                     }
-                    printf("\n");
-
                 }
-            delete p;
+                delete p;
             }
             //draw circle
 
@@ -375,164 +344,4 @@ CircleReturn* ChinessJumpChessControl::GetNodeInfo(int Map_id) {
         }
     }
     return returan_node;
-}
-void ChinessJumpChessControl::FindPathList(int Map_id,map<int,list<CircleReturn>> &circlemap)  {
-    int map_x=0,map_y=0;
-    ChessColor  map_Color=NOCHESS;
-    vector<int> find_st;
-    vector<int> g;
-    set<int> visited;
-
-
-
-
-    g.push_back(Map_id);//while循环控制条件，里面保存当前要访问的下一个mapid
-    visited.insert(Map_id);//保存访问过的mapid的list，为后面判断是否重复拜访作为判断条件
-    while(g.size()>0) {
-        int id =g[0];
-        map<int, list<CircleReturn>>::iterator iter_org;
-        map_x = checker->CircleMap[id][0];
-        map_y = checker->CircleMap[id][1];
-        map_Color = (ChessColor)checker->CircleMap[Map_id][2];
-
-        iter_org = MapChessControlMemory->find(id);
-        g.erase(g.begin());//访问一次就清除，避免重复访问
-        find_st.push_back(id);//保存每一个访问的mapid的list
-
-        if (iter_org != MapChessControlMemory->end()) {
-            list<CircleReturn> curlist = iter_org->second;
-            list<CircleReturn>::iterator iterlist;
-            int cur_i1 = 0;
-            int map_x1 = 0, map_y1 = 0;
-            ChessColor curcolor = NOCHESS;
-
-            for (iterlist = curlist.begin(); iterlist != curlist.end(); iterlist++) {
-                CircleReturn cur_node = *iterlist;
-                if (cur_node.Map_x == map_x && cur_node.Map_y == map_y)
-                    continue;
-                map_x1 = cur_node.Map_x;
-                map_y1 = cur_node.Map_y;
-                cur_i1 = cur_node.CircleMap_i;
-                curcolor = (ChessColor) cur_node.curColor;
-
-                //find_st.push_back(cur_i1);
-                //判断是否已经访问过这个mapid，如果没有访问过，则继续循环执行放在g里面
-                //并且标记现在已经拜访国这个mapid
-                /*
-                if(visited.count(cur_i1) == 0){
-                    g.push_back(cur_i1);
-                    visited.insert(cur_i1);
-                }*/
-
-                //寻找下一跳的方向
-                map<int,list<CircleReturn>>::iterator iter2;
-                iter2 = MapChessControlMemory->find(cur_i1);
-
-                if(iter2 != MapChessControlMemory->end()) {
-                    list<CircleReturn> curlist2 = iter2->second;
-                    list<CircleReturn>::iterator iterlist2;
-                    int cur_i2 = 0;
-                    int map_x2 = 0, map_y2 = 0;
-                    ChessColor curcolor2 = NOCHESS;
-                    for (iterlist2 = curlist2.begin(); iterlist2 != curlist2.end(); iterlist2++) {
-                        CircleReturn cur_node2 = *iterlist2;
-                        if (cur_node2.Map_x == map_x1 && cur_node2.Map_y == map_y1)
-                            continue;
-
-                        map_x2 = cur_node2.Map_x;
-                        map_y2 = cur_node2.Map_y;
-                        cur_i2 = cur_node.CircleMap_i;
-                        curcolor2 = (ChessColor) cur_node2.curColor;
-
-
-                        //find_st.push_back(cur_i2);
-                        //判断是否已经访问过这个mapid，如果没有访问过，则继续循环执行放在g里面
-                        //并且标记现在已经拜访国这个mapid
-                        if(visited.count(cur_i2) == 0){
-                            g.push_back(cur_i2);
-                            visited.insert(cur_i2);
-                        }
-                        //
-                        bool find_line_flag = false;
-                        if(map_x == map_x1 && map_x == map_x2 ){
-                            //3个位置都在x坐标相同的这一行
-                            find_line_flag = true;
-                        }
-                        if(find_line_flag== false && (map_y == map_y1 && map_y == map_y2)){
-                            //3个作为都在y坐标相同的这一行
-                            find_line_flag = true;
-                        }
-                        int ax = abs(map_x - map_x1);
-                        int cx = abs(map_x1 - map_x2);
-                        int ay = abs(map_y - map_y1);
-                        int cy = abs(map_y1 - map_y2);
-                        if(find_line_flag==false && (ax ==1 && cx == 1 && ay == 1 && cy ==1)){
-                            //判断是否是除了x，y另外一种直线的倾斜方式，3个点是否在一条线上
-                            find_line_flag =true;
-                        }
-                        if(find_line_flag == true){
-                            //三个点在一条线上
-                            if(map_Color != SHARELIGHTGREEN){
-                                if(curcolor != SHARELIGHTGREEN){
-                                    //前2个连续是两个棋子
-                                    if(curcolor2 !=SHARELIGHTGREEN){
-                                        //第一个是棋子，第二个是棋子，第三个也是棋子
-                                        //stop search
-                                        //find_st.push_back(cur_i2);
-                                        //判断是否已经访问过这个mapid，如果没有访问过，则继续循环执行放在g里面
-                                        //并且标记现在已经拜访国这个mapid
-                                        continue;
-                                    } else{
-                                        //第一个是棋子，第二个是棋子，第三个是空格
-                                        //stop search
-                                        continue;
-                                    }
-                                } else{
-                                    if(curcolor2 !=SHARELIGHTGREEN){
-                                        //第一个是棋子，第二个空格，第三个是棋子
-                                        //continue search
-                                    } else{
-                                        //第一个是棋子，第二个是空格，第三个也是空格
-                                        //continue search
-
-                                    }
-                                }
-                            } else{
-                                if(curcolor != SHARELIGHTGREEN){
-                                    if(curcolor2 !=SHARELIGHTGREEN){
-                                        //第一个是空格，二个是棋子，第三个也是棋子
-                                        //stop search
-                                        continue;
-                                    } else{
-                                        //第一个是空格，第二个是棋子，第三个是空格
-                                        //continue search
-
-                                    }
-                                } else{
-                                    if(curcolor2 !=SHARELIGHTGREEN){
-                                        //第一个是空格，第二个空格，第三个是棋子
-                                        //continue search
-                                    } else{
-                                        //第一个是空格，第二个是空格，第三个也是空格
-                                        //continue search
-
-                                    }
-                                }
-                            }
-
-
-                        } else{
-                            //三个不在一条线上这个搜索方向要改一下
-                            continue;
-                            //  if()
-                        }
-                    }
-                }
-
-            }
-
-        }
-    }
-
-
 }

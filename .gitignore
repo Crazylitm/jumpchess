@@ -21,3 +21,7 @@ models/train_*.log
 models/train_log.txt
 models/train_done.log
 
+# 预编译的 Swift 鼠标控制助手（由 jump_common.py 从 jumpctl.swift 生成）
+scripts/.jumpctl
+__pycache__/
+

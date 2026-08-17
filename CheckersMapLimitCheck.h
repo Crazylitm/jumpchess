@@ -367,8 +367,6 @@ public:
     ChessColor getChessColor(int x,int y);
     ChessColor  getCircleColor(int x,int y);
     list<Point>* getChessNeighbourList(Point curnode);
-    int getCircleMapPostion(int x,int y);
 
 };
-static CheckersMapLimitCheck chesschecker;
 #endif //JUMP0_CHECKERSMAPLIMITCHECK_H

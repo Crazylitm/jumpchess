@@ -5,57 +5,16 @@ Fixed: cycle detection, better scoring, game actually finishes.
 """
 import subprocess, time, sys, hashlib, os
 
-# Helper Swift files live in the repo, not /tmp: a fixed world-writable /tmp
-# path could be replaced by any local process and executed with our privileges.
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CLK_SWIFT = os.path.join(SCRIPT_DIR, 'clk.swift')
-ACTIVATE_SWIFT = os.path.join(SCRIPT_DIR, 'activate_jump0.swift')
-
-# ── Coordinate system ──────────────────────────────────────────────────
-BEGX, BEGY    = 600, 30
-XWIDTH, YHIGH = 30, 52
-WIN_X, WIN_Y  = 0, 53   # window content origin on screen
-
-SPECIAL_XDIS = {
-    (13,5):-12,(13,6):-11,(12,5):-10,(13,7):-10,(12,6):-9,(13,8):-9,
-    (11,5):-8, (12,7):-8, (13,9):-8, (11,6):-7, (12,8):-7,
-    (10,5):-6, (11,7):-6,
-    (1,5):12,(2,6):11,(2,5):10,(3,7):10,(3,6):9,(4,8):9,
-    (3,5):8,(4,7):8,(5,9):8,(4,6):7,(5,8):7,(4,5):6,(5,7):6,
-}
-XCOL = {5:lambda y:y-1, 6:lambda y:y-3, 7:lambda y:y-5, 8:lambda y:y-7,
-        9:lambda y:y-9, 10:lambda y:y-11,11:lambda y:y-13,12:lambda y:y-15,
-        13:lambda y:y-17,14:lambda y:y-19,15:lambda y:y-21,
-        16:lambda y:y-23,17:lambda y:y-25}
-
-def x_dis(x, y):
-    if (x,y) in SPECIAL_XDIS: return SPECIAL_XDIS[(x,y)]
-    return XCOL[x](y) if x in XCOL else 0
-
-def board_to_screen(bx, by):
-    px = BEGX + x_dis(bx,by)*XWIDTH
-    py = BEGY + (by-1)*YHIGH
-    return WIN_X+px, WIN_Y+py
+# 共享工具：坐标换算 + 预编译 Swift 鼠标控制（click/move/activate/launch）
+from jump_common import (board_to_screen, click as _click,
+                         move_cursor as _move_cursor, launch_jump0)
 
 def click(x, y):
-    subprocess.run(['swift', CLK_SWIFT, str(x), str(y)], capture_output=True)
+    _click(x, y)
     time.sleep(0.45)
 
-def move_cursor(x1,y1,x2,y2):
-    """Animate cursor visibly from (x1,y1) to (x2,y2)."""
-    script = f"""
-import CoreGraphics, Foundation
-let src = CGEventSource(stateID: .hidSystemState)
-for i in 0...15 {{
-    let t = Double(i)/15.0
-    let pt = CGPoint(x: {x1}+Int(t*Double({x2}-{x1})),
-                     y: {y1}+Int(t*Double({y2}-{y1})))
-    let ev = CGEvent(mouseEventSource: src, mouseType: .mouseMoved,
-                     mouseCursorPosition: pt, mouseButton: .left)
-    ev?.post(tap: .cghidEventTap); usleep(25000)
-}}
-"""
-    subprocess.run(['swift','-e',script], capture_output=True)
+def move_cursor(x1, y1, x2, y2):
+    _move_cursor(x1, y1, x2, y2)
 
 # ── Piece colours ──────────────────────────────────────────────────────
 def init_color(x, y):
@@ -217,14 +176,7 @@ def main():
     board = Board()
 
     # Ensure jump0 is running
-    r = subprocess.run(['pgrep','-x','jump0'], capture_output=True, text=True)
-    if not r.stdout.strip():
-        print("Launching jump0...")
-        subprocess.Popen(['./jump0'], cwd='/Users/mike/claude-work/jumpchess/build',
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(4)
-        subprocess.run(['swift', ACTIVATE_SWIFT], capture_output=True)
-        time.sleep(0.5)
+    launch_jump0()
 
     print("""
 ╔══════════════════════════════════════════════════════╗

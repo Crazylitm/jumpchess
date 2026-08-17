@@ -5,44 +5,11 @@ Drives jump0 via CGEvent mouse clicks.
 """
 import subprocess, time, sys, os
 
-# Helper Swift files live in the repo, not /tmp: a fixed world-writable /tmp
-# path could be replaced by any local process and executed with our privileges.
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CLK_SWIFT = os.path.join(SCRIPT_DIR, 'clk.swift')
-
-# ── Coordinate system ──────────────────────────────────────────────────
-BEGX, BEGY   = 600, 30
-XWIDTH, YHIGH = 30, 52
-CHESS_RADIUS  = 19
-
-# Window screen origin (from CGWindowList: X=0,Y=25 + title bar ~28px)
-WIN_X, WIN_Y = 0, 53   # content area top-left in screen coords
-
-SPECIAL_XDIS = {
-    (13,5):-12,(13,6):-11,(12,5):-10,(13,7):-10,(12,6):-9,(13,8):-9,
-    (11,5):-8, (12,7):-8, (13,9):-8, (11,6):-7, (12,8):-7,
-    (10,5):-6, (11,7):-6,
-    (1,5):12,(2,6):11,(2,5):10,(3,7):10,(3,6):9,(4,8):9,
-    (3,5):8,(4,7):8,(5,9):8,(4,6):7,(5,8):7,(4,5):6,(5,7):6,
-}
-XCOL = {5:lambda y:y-1, 6:lambda y:y-3, 7:lambda y:y-5, 8:lambda y:y-7,
-        9:lambda y:y-9, 10:lambda y:y-11,11:lambda y:y-13,12:lambda y:y-15,
-        13:lambda y:y-17,14:lambda y:y-19,15:lambda y:y-21,
-        16:lambda y:y-23,17:lambda y:y-25}
-
-def x_dis(x, y):
-    if (x,y) in SPECIAL_XDIS: return SPECIAL_XDIS[(x,y)]
-    if x in XCOL: return XCOL[x](y)
-    return 0
-
-def board_to_screen(bx, by):
-    px = BEGX + x_dis(bx, by) * XWIDTH
-    py = BEGY + (by-1) * YHIGH
-    return WIN_X + px, WIN_Y + py
+# 共享工具：坐标换算 + 预编译 Swift 鼠标控制
+from jump_common import (board_to_screen, click as _click, launch_jump0, WIN_X, WIN_Y)
 
 def click(sx, sy, label=""):
-    subprocess.run(['swift', CLK_SWIFT, str(sx), str(sy)],
-                   capture_output=True)
+    _click(sx, sy)
     print(f"    🖱  click ({sx},{sy}) {label}")
     time.sleep(0.5)
 
@@ -190,12 +157,7 @@ def main():
     board = Board()
 
     # Ensure jump0 is running
-    r = subprocess.run(['pgrep','-x','jump0'], capture_output=True, text=True)
-    if not r.stdout.strip():
-        print("Launching jump0...")
-        subprocess.Popen(['./jump0'], cwd='/Users/mike/claude-work/jumpchess/build',
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(4)
+    launch_jump0()
 
     print("""
 ╔══════════════════════════════════════════════════════╗

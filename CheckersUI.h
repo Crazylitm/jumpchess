@@ -102,9 +102,7 @@ public:
         orangechess = imread("../image/orangechess.png",IMREAD_UNCHANGED);
         button_begin = imread("../image/button_begin.png",IMREAD_UNCHANGED);
     }
-    ~CheckersUI(){
-        delete control;
-    }
+    ~CheckersUI();
     Mat getmat(){
         return chessmapmat;
     }
@@ -139,6 +137,7 @@ public:
     void initChessNodeGraph();
 
     CircleReturn* getCirclePosXY(int x, int y);//通过鼠标位置点击xy位置，获得当前选中的物体，如果没有Point返回-（-1，-1）
+    bool isLegalMoveTarget(Point logicalPos);//判断逻辑坐标是否在当前选中棋子的合法落点集合内
     void updateCircleMap(int CircleMap_i,Point p, ChessColor color);//鼠标点击移动棋子后在更新内存最新的棋子的位置和颜色
     float getDistance(Point pointO, Point pointA)
     {

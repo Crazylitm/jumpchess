@@ -5,6 +5,8 @@ Calculates pixel coords, sends mouse clicks to jump0 window.
 """
 import subprocess, time, math, sys
 
+from jump_common import click as _click, launch_jump0
+
 # ── Board constants (mirrors CheckersUI.h / CheckersMapLimitCheck.cpp) ──
 BEGX   = 600   # RED_TOP_5_1_X = WINDOW_WIDTH/2
 BEGY   = 30    # RED_TOP_5_1_Y
@@ -12,34 +14,10 @@ XWIDTH = 30
 YHIGH  = 52
 CHESS_RADIUS = 19
 
-# ── Hardcoded x_dis lookup (from getDistanceFromRED_5_1_point_X) ──────
-SPECIAL = {
-    (13,5):-12,(13,6):-11,(12,5):-10,(13,7):-10,(12,6):-9,(13,8):-9,
-    (11,5):-8, (12,7):-8, (13,9):-8, (11,6):-7, (12,8):-7, (10,5):-6,
-    (11,7):-6,
-    (1,5):12,(2,6):11,(2,5):10,(3,7):10,(3,6):9,(4,8):9,
-    (3,5):8,(4,7):8,(5,9):8,(4,6):7,(5,8):7,(4,5):6,(5,7):6,
-}
-XCOL_FORMULA = {
-    5: lambda y: y-1,
-    6: lambda y: (y-2)-1,
-    7: lambda y: (y-3)-2,
-    8: lambda y: (y-4)-3,
-    9: lambda y: (y-5)-4,
-    10:lambda y: (y-6)-5,
-    11:lambda y: (y-7)-6,
-    12:lambda y: (y-8)-7,
-    13:lambda y: (y-9)-8,
-    14:lambda y: (y-10)-9,
-    15:lambda y: (y-11)-10,
-    16:lambda y: (y-12)-11,
-    17:lambda y: (y-13)-12,
-}
-
 def x_dis(x, y):
-    if (x,y) in SPECIAL: return SPECIAL[(x,y)]
-    if x in XCOL_FORMULA: return XCOL_FORMULA[x](y)
-    return 0
+    # 与 C++ getDistanceFromRED_5_1_point_X() 等价：原 46 项特例表 + XCOL_FORMULA
+    # lambda 全部可由同一公式 y - 2*x + 9 算出（以 RED 顶点 (5,1) 为基准）。
+    return y - 2*x + 9
 
 def board_to_pixel(x, y):
     px = BEGX + x_dis(x,y) * XWIDTH
@@ -210,31 +188,13 @@ def best_move(board, color, score_fn, target):
                 best = (px,py,mx,my)
     return best
 
-# ── Mouse click via osascript ──
+# ── Mouse click（预编译 Swift 助手） ──
 def click(wx, wy, px, py):
-    """Click screen position (wx+px, wy+py) using osascript"""
+    """Click screen position (wx+px, wy+py)."""
     sx = wx + px
     sy = wy + py
-    script = f'''
-tell application "System Events"
-    tell process "jump0"
-        set frontmost to true
-    end tell
-end tell
-do shell script "cliclick c:{sx},{sy}"
-'''
-    # Try osascript mouse event
-    scr2 = f'''
-tell application "System Events"
-    set frontmost of process "jump0" to true
-    click at {{{sx},{sy}}}
-end tell
-'''
-    result = subprocess.run(['osascript','-e',scr2], capture_output=True, text=True)
-    if result.returncode != 0:
-        print(f"  [click err] {result.stderr.strip()[:80]}")
-    else:
-        print(f"  ✓ clicked ({sx},{sy})")
+    _click(sx, sy)
+    print(f"  ✓ clicked ({sx},{sy})")
     time.sleep(0.4)
 
 def get_window_pos():
@@ -279,13 +239,8 @@ def main():
     print(f"Window origin: ({wx},{wy})")
 
     # Launch jump0 if not running
-    r = subprocess.run(['pgrep','-x','jump0'], capture_output=True, text=True)
-    if not r.stdout.strip():
-        print("Launching jump0...")
-        subprocess.Popen(['./jump0'], cwd='/Users/mike/claude-work/jumpchess/build',
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(3)
-        wx, wy = get_window_pos()
+    launch_jump0()
+    wx, wy = get_window_pos()
 
     print(f"\n{'='*60}")
     print("  JUMPCHESS SIMULATION: RED (top) vs ORANGE (bottom)")

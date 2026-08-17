@@ -35,71 +35,28 @@ void BGFGSegmentor::process(Mat &input, Mat &output) {
     //LocatChessCircle(input,output);
     vector<Output> result;
     static vector<Output> lastoneResult;
-    Mat input_save;
-    vector<Output> result_nochess;
-    vector<Output> result_nochess_v2;//delete result dupliate
-    vector<Output> result_nochess_v3;//delete self dupliate
 
     output = input;//save input data to output,for do not update
 
-    input_save = input.clone();
     if (test.Detect(input, net, result)) {
         test.drawPred(input, result, color);
         output = input;
     }
     else {
         cout << "Detect jump chess Failed!"<<endl;
-
     }
 
-
-    if (test.Detect(input_save, net_no_ches, result_nochess,2)) {
-        //
-        vector<Output>::iterator itor;
-        int i =0;
-        for(itor=result_nochess.begin(); itor != result_nochess.end();itor++,i++ ){
-            result_nochess_v2.push_back(result_nochess[i]);
-            for(int j=0; j <result.size();j++){
-                if(rectA_intersect_rectB(result_nochess[i].box,result[j].box)){
-                    result_nochess_v2.pop_back();
-                }
-            }
-        }
-
-        i =0;
-        int j =0;
-        vector<Output>::iterator itor_j;
-        for(itor=result_nochess_v2.begin(); itor != result_nochess_v2.end();itor++,i++ ){
-            result_nochess_v3.push_back(result_nochess_v2[i]);
-            for(j=i+1,itor_j=result_nochess_v2.begin(); itor_j !=result_nochess_v2.end();itor_j++,j++){
-
-                if(rectA_intersect_rectB(result_nochess_v2[i].box,result_nochess_v2[j].box)){
-                        result_nochess_v3.pop_back();
-                }
-            }
-        }
-        if(result_nochess_v2.size() != result_nochess_v3.size()){
-            cout << "find duplicate chess" << endl;
-        }
-        try{
-            test.drawPred(output, result_nochess_v3, color,2);
-        }catch (int e ){
-            cout << "error " << e << endl;
-        }
-
-    }
-    else {
-        cout << "Detect no chess Failed!"<<endl;
-
-    }
-    //
+    // 注意：原“空格检测”(net_no_ches) 加载的是同一个 6 类棋盘模型，却按 1 类
+    // (className_no_chess={"N"}) 解析，reshape 会因形状不匹配抛异常，属于未完成功能，
+    // 已移除。空格识别需要专用“空位”模型或棋盘几何配准，暂不实现；此处保留空结果以维持下游接口。
+    vector<Output> result_nochess;
 
     //add 2023.2.5 for check chess ui of yolov5 detect
     outPutUi.setOutputMat(output);
     outPutUi.DrawBackground();
     outPutUi.DrawButton(ButtonTypeStatus);
     outPutUi.setDetectResult(result);
-    outPutUi.setDetectResult_no_chess(result_nochess_v3);
+    outPutUi.setDetectResult_no_chess(result_nochess);
 
     //if have read the parse config or parse the init,to flag =true;
     if(lastoneResult.size() <=0)
@@ -108,11 +65,10 @@ void BGFGSegmentor::process(Mat &input, Mat &output) {
     if(had_save_flag && (had_UI_update_no == false || (judgeLastoneAndThisoneEqual(lastoneResult,result) == false || result.size()<=0))){
         outPutUi.setSaveFlag(had_save_flag);
         //parse Result to chess Board
-        outPutUi.parseDetectChessPositionToBoardUpdateFromSaveResult(result,result_nochess_v3);
+        outPutUi.parseDetectChessPositionToBoardUpdateFromSaveResult(result,result_nochess);
         update();
         had_UI_update_no = true;
         lastoneResult.clear();
-        //lastoneResult.assign(result.begin(),result.end());
         std::copy(result.begin(),result.end(),std::back_inserter(lastoneResult));
         //imshow(WINDOW_NAME_CHESS_OUTPUT,outPutUi.getOutputMat());//刷新以下
     }
@@ -145,7 +101,6 @@ void BGFGSegmentor::rotate(cv::Mat src, cv::Mat& dst, double angle)
 void BGFGSegmentor::initMouseParam() {
     setMouseCallback(WINDOW_NAME_CHESS_OUTPUT,onMouseHandle_BGFGSegmentor_imShow,(void*)this);
     //setMouseCallback(WINDOW_NAME_CHESS_INPUT,onMouseHandle_Camera_imShow_in,(void*)this);
-    printf("initMouseParam\n") ;
 
 }
 void BGFGSegmentor::onMouseHandle_BGFGSegmentor_inner(int event, int x, int y, int flags, void *param){

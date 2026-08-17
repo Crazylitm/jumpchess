@@ -1121,7 +1121,7 @@ void Camera_OutPut_UI::parseDetectMapToMemory() {
             iterfind->second.begin()->Map_x = iter->second.info.x;
             iterfind->second.begin()->Map_y = iter->second.info.y;
             iterfind->second.begin()->curColor= iter->second.info.chessColor;
-            iterfind->second.begin()->curPoint;// = iter->second.circle_center;
+            iterfind->second.begin()->curPoint = iter->second.circle_center;
             if(iter->second.info.chessColor == ChessColor(NOCHESS)){
                 iterfind->second.begin()->Down_Chess_flag = true;
                 //iterfind->second.begin()->curColor = SHARELIGHTGREEN;
@@ -1213,7 +1213,7 @@ void Camera_OutPut_UI::diffSaveV1_V2() {
         for(;iter_v2 != SaveDetectPhysical2LogicalInfo_v2.end(); iter_v2++){
             if(iter->index == iter_v2->index)
             {
-                cout << "find 1" << endl;
+                // (索引匹配记录，供调试对比使用)
             }
         }
 

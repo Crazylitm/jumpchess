@@ -4,6 +4,34 @@
 
 #include "CheckersUI.h"
 
+CheckersUI::~CheckersUI() {
+    // 释放 ChessNode 邻接图：节点是共享的（双向邻接），用 visited 集合去重避免二次 delete
+    if (head != nullptr) {
+        vector<ChessNode*> g;
+        set<ChessNode*> visited;
+        g.push_back(head);
+        visited.insert(head);
+        while (!g.empty()) {
+            ChessNode* cur = g.back();
+            g.pop_back();
+            ChessNode* nbs[6] = {cur->top_left_next, cur->top_right_next,
+                                 cur->middle_left_next, cur->middle_right_next,
+                                 cur->down_left_next, cur->down_right_next};
+            for (int i = 0; i < 6; i++) {
+                if (nbs[i] != nullptr && visited.count(nbs[i]) == 0) {
+                    visited.insert(nbs[i]);
+                    g.push_back(nbs[i]);
+                }
+            }
+        }
+        for (set<ChessNode*>::iterator it = visited.begin(); it != visited.end(); ++it) {
+            delete *it;
+        }
+        head = nullptr;
+    }
+    delete control;
+}
+
 void CheckersUI::DrawFiledCircle(Mat img, Point center,int radius) {
     int thickness = -1;
     int lineType = LINE_AA;
@@ -395,9 +423,6 @@ void CheckersUI::Triangle() {
         Point p2 = getMapXY(x2,y2);
         Point p3 = getMapXY(x3,y3);
 
-        if(x1==7 && y1==5){
-            printf("debug");
-        }
         Triangle(p1,p2,p3,checker.getCircleColor(x1,y1));
 
         DrawLine(chessmapmat,p1,p2);
@@ -498,12 +523,13 @@ void CheckersUI::onMouseHandle_inner(int event, int x, int y, int flags, void *p
                 control->ProbableJumpPathALLShow(curChessPoint,pcurChess->CircleMap_i,0,&drawProbablePathList);
                 Circle(&drawProbablePathList,0,CHESS_RADIUS+2);
                 oneMouseDown_no_update = 1;
-                //drawProbablePathList_Save.assign(drawProbablePathList.begin(),drawProbablePathList.end());
+                //保存本次选中的合法落点（逻辑坐标），用于二次点击时校验
+                drawProbablePathList_Save.assign(drawProbablePathList.begin(),drawProbablePathList.end());
                 imshow(WINDOW_NAME_CHESS,chessmapmat);//刷新以下
                 //如果是第二次鼠标down下来，并且目标位置是空白位置则进入
-                //CanJumpFun函数判断这次Jump Chess跳动是否合法，如果不合法，则不允许跳动。
+                //isLegalMoveTarget() 判断目标是否在本次选中的合法落点集合内，不合法则不允许移动。
             } else if(curChessPoint.x !=-1 && curChessPoint.y != -1 && oneMouseDown >0 && curColor == SHARELIGHTGREEN
-               && control->CanJumpFun(old_cur_Pos,curChessPoint)){
+               && isLegalMoveTarget(Point(checker.CircleMap[cur_i][0], checker.CircleMap[cur_i][1]))){
 
                 Circle(oneMouseDownPose, 1, CHESS_RADIUS + 2);//将之前保存的点击前的背景恢复以下
                 control->ProbableJumpPathALLShow(old_cur_Pos,pcurChess->CircleMap_i,1);//擦除之前一次点击鼠标down保留的棋盘上显示的所有可能的跳跃路径。
@@ -600,12 +626,23 @@ CircleReturn* CheckersUI::getCirclePosXY(int x, int y) {
                 ret->curPoint = p;
                 ret->CircleMap_i =i;
             }
+            ret->Map_x = map_x;
+            ret->Map_y = map_y;
 
             return ret;
         }
     }
     return ret;
 
+}
+
+bool CheckersUI::isLegalMoveTarget(Point logicalPos) {
+    for(list<Point>::iterator it = drawProbablePathList_Save.begin();
+        it != drawProbablePathList_Save.end(); ++it){
+        if(*it == logicalPos)
+            return true;
+    }
+    return false;
 }
 
 void CheckersUI::initMouseParam() {
@@ -687,9 +724,7 @@ void CheckersUI::initMapList() {
         delete listnode;
         //printf("-------[%d]\n",i);
     }
-    printChessMap();
     initChessNodeGraph();
-    head->printNode();
     control->init(head);
 }
 void CheckersUI::initChessNodeGraph(){
